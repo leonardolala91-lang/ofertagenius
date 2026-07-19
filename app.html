@@ -1,0 +1,2723 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OfertaGenius — Painel</title>
+<meta name="description" content="Painel do OfertaGenius: organize, monitore e rastreie suas ofertas em tempo real.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..900&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   OFERTAGENIUS APP — mesmo design system da landing page
+   ========================================================================== */
+:root {
+  --black: #000000;
+  --bg: #121212;
+  --surface: #1A1A1A;
+  --surface-2: #202020;
+  --surface-3: #262626;
+  --border: #2A2A2A;
+  --border-soft: #232323;
+  --accent: #B4FF39;
+  --accent-strong: #9BFF00;
+  --accent-dim: rgba(180, 255, 57, 0.12);
+  --accent-glow: rgba(180, 255, 57, 0.25);
+  --amber: #FFC442;
+  --amber-dim: rgba(255, 196, 66, 0.10);
+  --red: #FF5C5C;
+  --red-dim: rgba(255, 92, 92, 0.10);
+  --text: #FFFFFF;
+  --text-soft: #B5B5B5;
+  --text-mute: #7A7A7A;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --sidebar-w: 280px;
+  --font: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+::selection { background: var(--accent); color: #000; }
+button { font-family: var(--font); }
+
+/* ============================ SIDEBAR ============================ */
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--sidebar-w);
+  background: var(--black);
+  border-right: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  padding: 28px 20px 20px;
+  z-index: 100;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  padding: 0 8px 26px;
+}
+.logo .logo-mark {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  background: var(--accent);
+  color: #000;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  box-shadow: 0 0 18px var(--accent-glow);
+  flex-shrink: 0;
+}
+.logo em { font-style: normal; color: var(--accent); }
+
+.btn-new-offer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 16px;
+  background: var(--accent);
+  color: #000;
+  font-size: 0.9rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+.btn-new-offer:hover {
+  background: var(--accent-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px var(--accent-glow);
+}
+
+.side-nav { margin-top: 28px; display: flex; flex-direction: column; gap: 4px; flex: 1; overflow-y: auto; }
+.side-nav .nav-label {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--text-mute); padding: 0 12px 8px;
+}
+.side-nav a {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 12px; border-radius: 10px;
+  color: var(--text-soft); text-decoration: none;
+  font-size: 0.9rem; font-weight: 500;
+  transition: background 0.15s ease, color 0.15s ease;
+  border-left: 2px solid transparent;
+}
+.side-nav a svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.8; }
+.side-nav a:hover { background: #111; color: var(--text); }
+.side-nav a.active { background: var(--accent-dim); color: var(--accent); border-left-color: var(--accent); }
+.side-nav a.active svg { opacity: 1; }
+.nav-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: #000;
+  font-size: 0.68rem;
+  font-weight: 800;
+  min-width: 20px; height: 20px;
+  border-radius: 999px;
+  display: grid; place-items: center;
+  padding: 0 6px;
+}
+.nav-badge.zero { display: none; }
+
+.side-status {
+  margin-top: 16px; padding: 12px 14px;
+  border: 1px solid var(--border-soft); border-radius: 12px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.75rem; color: var(--text-mute);
+}
+.pulse-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse 2s infinite;
+  flex-shrink: 0;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+.user-chip {
+  margin-top: 10px;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px;
+  background: #0D0D0D;
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+}
+.user-chip .avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--accent-dim);
+  border: 1px solid rgba(180,255,57,0.3);
+  color: var(--accent);
+  display: grid; place-items: center;
+  font-weight: 800; font-size: 0.8rem;
+  flex-shrink: 0;
+}
+.user-chip b { display: block; font-size: 0.8rem; line-height: 1.2; }
+.user-chip span { font-size: 0.68rem; color: var(--text-mute); }
+
+/* ============================ TOPBAR MOBILE ============================ */
+.mobile-topbar {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 60px; background: var(--black);
+  border-bottom: 1px solid var(--border-soft);
+  z-index: 110;
+  align-items: center; justify-content: space-between;
+  padding: 0 16px;
+}
+.hamburger {
+  background: none; border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); width: 40px; height: 40px;
+  display: grid; place-items: center; cursor: pointer; font-size: 1.15rem;
+}
+
+/* ============================ MAIN ============================ */
+.main {
+  margin-left: var(--sidebar-w);
+  padding: 32px clamp(20px, 4vw, 48px) 64px;
+  max-width: 1240px;
+}
+.view { display: none; }
+.view.active { display: block; animation: fadeIn 0.25s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.view-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
+.view-head h1 { font-size: clamp(1.4rem, 2.6vw, 1.9rem); font-weight: 800; letter-spacing: -0.02em; }
+.view-head p { color: var(--text-mute); font-size: 0.88rem; margin-top: 2px; }
+
+/* ============================ COMPONENTES ============================ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 22px;
+}
+.card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+.card .card-sub { font-size: 0.78rem; color: var(--text-mute); margin-bottom: 16px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.85rem; font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text);
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+  text-decoration: none;
+}
+.btn:hover { background: var(--surface-3); border-color: #3A3A3A; }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: #000; }
+.btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); transform: translateY(-1px); box-shadow: 0 6px 20px var(--accent-glow); }
+.btn-danger { border-color: rgba(255,92,92,0.4); color: var(--red); background: transparent; }
+.btn-danger:hover { background: var(--red-dim); border-color: var(--red); }
+.btn-sm { padding: 7px 12px; font-size: 0.78rem; border-radius: 8px; }
+.btn-icon { padding: 8px 10px; }
+
+.badge {
+  font-size: 0.62rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.06em; padding: 4px 10px; border-radius: 999px;
+  white-space: nowrap; flex-shrink: 0;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.badge-live { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(180,255,57,0.3); }
+.badge-dead { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,92,92,0.3); }
+.badge-warn { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(255,196,66,0.3); }
+
+input[type="text"], input[type="url"], input[type="number"],
+input[type="datetime-local"], select, textarea {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.88rem;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+select { cursor: pointer; }
+select option { background: var(--surface-2); }
+label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-soft); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+.field { margin-bottom: 16px; }
+
+/* ============================ STAT TILES ============================ */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+.stat-tile {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.stat-tile .stat-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-mute); margin-bottom: 10px;
+}
+.stat-tile .stat-label svg { width: 14px; height: 14px; color: var(--accent); }
+.stat-tile .stat-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.stat-tile .stat-delta { font-size: 0.75rem; margin-top: 6px; color: var(--text-mute); }
+.stat-tile .stat-delta .up { color: var(--accent); font-weight: 700; }
+.stat-tile .stat-delta .down { color: var(--red); font-weight: 700; }
+
+/* ============================ GRÁFICOS ============================ */
+.chart-wrap { position: relative; }
+.chart-svg { width: 100%; height: auto; display: block; }
+.chart-tooltip {
+  position: absolute;
+  pointer-events: none;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 0.78rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  z-index: 20;
+  white-space: nowrap;
+  transform: translate(-50%, -110%);
+}
+.chart-tooltip b { color: var(--accent); }
+.chart-tooltip .tip-date { color: var(--text-mute); font-size: 0.7rem; display: block; }
+
+.hbars { display: flex; flex-direction: column; gap: 10px; }
+.hbar-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 38%) 1fr 64px;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 6px;
+  border-radius: 8px;
+}
+.hbar-row:hover { background: var(--surface-2); }
+.hbar-label {
+  font-size: 0.82rem; color: var(--text-soft);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hbar-track { height: 18px; display: flex; align-items: center; }
+.hbar-fill {
+  height: 18px;
+  background: var(--accent);
+  border-radius: 2px 4px 4px 2px;
+  min-width: 3px;
+  transition: width 0.5s ease;
+}
+.hbar-val { font-size: 0.8rem; font-weight: 700; color: var(--text); text-align: right; }
+
+.dash-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ============================ LISTA DE OFERTAS ============================ */
+.toolbar { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+.toolbar input[type="text"] { max-width: 300px; }
+.toolbar select { width: auto; min-width: 150px; }
+
+.offer-list { display: flex; flex-direction: column; gap: 10px; }
+.offer-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  transition: border-color 0.15s;
+}
+.offer-card:hover { border-color: #3A3A3A; }
+.offer-card.is-dead { opacity: 0.75; }
+.offer-thumb {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: grid; place-items: center;
+  font-size: 1.3rem;
+  background: var(--surface-3);
+  flex-shrink: 0;
+}
+.offer-body { flex: 1; min-width: 0; }
+.offer-body b {
+  display: block; font-size: 0.92rem; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.offer-meta { font-size: 0.75rem; color: var(--text-mute); display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
+.offer-meta .price { color: var(--accent); font-weight: 700; }
+.offer-meta .old-price { text-decoration: line-through; }
+.offer-clicks { text-align: right; flex-shrink: 0; }
+.offer-clicks b { display: block; font-size: 0.95rem; }
+.offer-clicks span { font-size: 0.68rem; color: var(--text-mute); }
+.offer-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.offer-actions .btn { border-radius: 8px; }
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-mute);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+.empty-state .big { font-size: 2rem; margin-bottom: 8px; }
+
+/* ============================ CATEGORIAS ============================ */
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.cat-card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.cat-card .cat-emoji { font-size: 1.6rem; }
+.cat-card b { font-size: 1rem; }
+.cat-card .cat-meta { font-size: 0.78rem; color: var(--text-mute); }
+.cat-card .cat-actions { display: flex; gap: 6px; margin-top: 8px; }
+
+/* ============================ ALERTAS ============================ */
+.alert-section { margin-bottom: 26px; }
+.alert-section h3 { display: flex; align-items: center; gap: 8px; font-size: 0.95rem; margin-bottom: 12px; }
+.alert-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.alert-card.dead { border-left: 3px solid var(--red); }
+.alert-card.warn { border-left: 3px solid var(--amber); }
+.radar-card {
+  display: flex; align-items: center; gap: 16px;
+  background: linear-gradient(160deg, var(--surface) 0%, #161B10 100%);
+  border: 1px solid rgba(180,255,57,0.25);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+}
+.radar-card .radar-info { flex: 1; min-width: 220px; }
+.radar-card b { display: flex; align-items: center; gap: 8px; font-size: 1rem; }
+.radar-card span { font-size: 0.8rem; color: var(--text-mute); }
+.spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(0,0,0,0.3);
+  border-top-color: #000;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.btn.loading .spinner { display: block; }
+.btn.loading .btn-txt { display: none; }
+
+/* ============================ RELATÓRIOS ============================ */
+.filter-row { display: flex; gap: 10px; align-items: center; margin-bottom: 18px; flex-wrap: wrap; }
+.seg {
+  display: inline-flex;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+}
+.seg button {
+  background: none; border: none; color: var(--text-soft);
+  font-size: 0.8rem; font-weight: 700;
+  padding: 7px 14px; border-radius: 8px; cursor: pointer;
+}
+.seg button.active { background: var(--accent); color: #000; }
+.report-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.report-table th {
+  text-align: left; font-size: 0.7rem; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-mute);
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+}
+.report-table td { padding: 12px; border-bottom: 1px solid var(--border-soft); color: var(--text-soft); }
+.report-table td:first-child { color: var(--text); font-weight: 600; }
+.report-table tr:hover td { background: var(--surface-2); }
+.report-table .num { text-align: right; font-weight: 700; color: var(--text); }
+
+/* ============================ CONFIG ============================ */
+.config-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; align-items: start; }
+
+/* ============================ MODAL ============================ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none;
+  place-items: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: grid; }
+.modal {
+  width: 100%; max-width: 560px;
+  max-height: 90vh; overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  animation: fadeIn 0.2s ease;
+}
+.modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.modal-head h3 { font-size: 1.15rem; font-weight: 800; }
+.modal-close {
+  background: none; border: none; color: var(--text-mute);
+  font-size: 1.3rem; cursor: pointer; line-height: 1;
+  width: 32px; height: 32px; border-radius: 8px;
+}
+.modal-close:hover { background: var(--surface-3); color: var(--text); }
+.url-row { display: flex; gap: 8px; }
+.url-row input { flex: 1; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+
+/* ============================ TOASTS ============================ */
+.toasts {
+  position: fixed; right: 20px; bottom: 20px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 300;
+}
+.toast {
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 0.85rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  animation: toastIn 0.25s ease;
+  max-width: 340px;
+}
+.toast.error { border-left-color: var(--red); }
+.toast.warn { border-left-color: var(--amber); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+
+/* tooltip global */
+.hover-tip {
+  position: fixed;
+  pointer-events: none;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.75rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  z-index: 400;
+  opacity: 0;
+  transition: opacity 0.1s;
+  white-space: nowrap;
+}
+
+/* ============================ DETALHE DA OFERTA ============================ */
+.offer-card { cursor: pointer; }
+.offer-card:hover { border-color: rgba(180,255,57,0.35); }
+
+.breadcrumb { font-size: 0.82rem; color: var(--text-mute); margin-bottom: 18px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.breadcrumb a { color: var(--text-soft); text-decoration: none; }
+.breadcrumb a:hover { color: var(--accent); }
+.breadcrumb b { color: var(--text); font-weight: 600; }
+
+.detail-head { display: flex; gap: 16px; align-items: flex-start; margin-bottom: 20px; }
+.detail-thumb {
+  width: 56px; height: 56px; border-radius: 14px;
+  background: var(--surface-3); border: 1px solid var(--border);
+  display: grid; place-items: center; font-size: 1.7rem; flex-shrink: 0;
+}
+.detail-info { flex: 1; min-width: 0; }
+.detail-info h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; line-height: 1.3; }
+.detail-info p { color: var(--text-soft); font-size: 0.86rem; margin-top: 4px; max-width: 780px; }
+.detail-info p s { color: var(--text-mute); }
+.detail-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.icon-btn {
+  width: 38px; height: 38px; display: grid; place-items: center;
+  background: none; border: 1px solid var(--border); border-radius: 10px;
+  cursor: pointer; color: var(--text-soft); font-size: 0.95rem;
+  transition: all 0.15s;
+}
+.icon-btn:hover { color: var(--accent); border-color: var(--accent); }
+.icon-btn.danger:hover { color: var(--red); border-color: var(--red); background: var(--red-dim); }
+
+.detail-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border-soft); padding-bottom: 12px; margin-bottom: 22px; flex-wrap: wrap; }
+.tab-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: none; border: 1px solid transparent; border-radius: 10px;
+  color: var(--text-soft); font-size: 0.85rem; font-weight: 600;
+  padding: 9px 16px; cursor: pointer;
+}
+.tab-btn:hover { color: var(--text); background: var(--surface-2); }
+.tab-btn.active { border-color: #3A3A3A; color: var(--text); background: var(--surface); }
+
+.detail-layout { display: grid; grid-template-columns: 200px 1fr; gap: 22px; align-items: start; }
+.sec-nav { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 2px; }
+.sec-nav .nav-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-mute); padding: 0 10px 8px; }
+.sec-nav button {
+  display: flex; align-items: center; gap: 8px;
+  background: none; border: none; border-left: 2px solid transparent;
+  color: var(--text-soft); text-align: left; font-size: 0.82rem; font-weight: 500;
+  padding: 8px 10px; border-radius: 0 8px 8px 0; cursor: pointer;
+}
+.sec-nav button:hover { color: var(--text); background: var(--surface); }
+.sec-nav button.active { color: var(--text); border-left-color: var(--accent); background: var(--surface); }
+
+.sec-cards { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.sec-card {
+  background: #0E0E0E;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 3vw, 32px);
+  scroll-margin-top: 16px;
+}
+.sec-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+.sec-chip {
+  font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-soft); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 999px; padding: 5px 12px;
+}
+.ai-btn {
+  width: 30px; height: 30px; display: grid; place-items: center;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--accent); cursor: pointer; font-size: 0.85rem; flex-shrink: 0;
+  transition: all 0.15s;
+}
+.ai-btn:hover { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
+.ai-btn.spin { animation: spin 0.6s linear infinite; }
+
+.slot-row { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+.slot-row > .slot-content { flex: 1; min-width: 0; }
+.pill-proof {
+  display: inline-block;
+  background: var(--accent-dim); border: 1px solid rgba(180,255,57,0.3);
+  color: var(--accent); font-size: 0.78rem; font-weight: 700;
+  padding: 7px 14px; border-radius: 8px;
+}
+.sec-h1 { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+.sec-h2 { font-size: clamp(1.15rem, 2.4vw, 1.55rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; }
+.sec-neon { color: var(--accent); font-weight: 800; font-size: 1.12rem; }
+.sec-meta { color: var(--text-mute); font-size: 0.85rem; }
+.sec-lead {
+  color: var(--text-soft); font-size: 0.95rem;
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: 12px; padding: 16px 18px;
+}
+.sec-p { color: var(--text-soft); font-size: 0.95rem; margin-bottom: 12px; }
+.sec-p b { color: var(--text); }
+.list-rows { display: flex; flex-direction: column; gap: 10px; }
+.list-rows .row {
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: 10px; padding: 13px 16px;
+  font-size: 0.9rem; color: var(--text-soft);
+}
+.comment-card {
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: 12px; padding: 16px; margin-bottom: 10px;
+  font-size: 0.9rem; color: var(--text-soft);
+}
+.comment-card b { color: var(--text); display: block; margin-bottom: 4px; font-size: 0.82rem; }
+.asset-box {
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: 12px; padding: 16px; margin-bottom: 10px;
+  font-size: 0.88rem; color: var(--text-soft); white-space: pre-wrap;
+}
+.link-row {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 10px;
+}
+.link-row .link-info { flex: 1; min-width: 0; }
+.link-row .link-info b { display: block; font-size: 0.8rem; }
+.link-row .link-info span { font-size: 0.8rem; color: var(--text-mute); word-break: break-all; }
+
+/* ----- edição inline (clique no texto para editar) ----- */
+.editable { cursor: text; border-radius: 8px; transition: box-shadow 0.15s, background 0.15s; }
+.editable:hover { box-shadow: inset 0 0 0 1px var(--border); }
+.editable:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--accent), 0 0 0 3px var(--accent-dim);
+  background: rgba(180, 255, 57, 0.04);
+}
+.lrow { display: flex; gap: 8px; align-items: stretch; }
+.lrow .row { flex: 1; }
+.mini-del {
+  width: 32px; border: 1px solid transparent; background: none;
+  color: var(--text-mute); border-radius: 8px; cursor: pointer;
+  opacity: 0; font-size: 0.8rem; flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+.lrow:hover .mini-del, .mini-del:focus { opacity: 1; }
+.mini-del:hover { color: var(--red); border-color: rgba(255,92,92,0.4); background: var(--red-dim); }
+.add-row {
+  margin-top: 10px; width: 100%; padding: 13px;
+  background: none; border: 1px dashed var(--border); border-radius: 10px;
+  color: var(--text-mute); font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.add-row:hover { color: var(--accent); border-color: rgba(180,255,57,0.4); }
+
+/* ----- preço e oferta: ancoragem + stack de valor + escassez ----- */
+.price-center { text-align: center; padding: 4px 0 10px; }
+.price-big {
+  font-size: clamp(2.2rem, 5vw, 2.8rem);
+  font-weight: 800; letter-spacing: -0.03em;
+  color: var(--accent); line-height: 1.15; margin: 2px 0 6px;
+}
+.stack-card {
+  background: var(--surface); border: 1px solid var(--border-soft);
+  border-radius: 12px; padding: 16px 18px;
+}
+.stack-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+.stack-desc { color: var(--text-soft); font-size: 0.88rem; margin-bottom: 4px; min-height: 1.2em; }
+.stack-desc:empty::before { content: 'Clique para adicionar detalhe…'; color: var(--text-mute); opacity: 0.55; }
+.stack-value { color: var(--accent); font-weight: 800; font-size: 0.9rem; margin-top: 6px; display: inline-block; min-width: 40px; }
+.scarcity-bar {
+  background: rgba(255, 196, 66, 0.08);
+  border: 1px solid rgba(255, 196, 66, 0.35);
+  color: var(--amber);
+  border-radius: 12px; padding: 14px 18px;
+  font-weight: 700; font-size: 0.9rem;
+}
+
+/* ============================ RESPONSIVO ============================ */
+@media (max-width: 1080px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .dash-grid, .grid-2, .config-grid { grid-template-columns: 1fr; }
+  .cat-grid { grid-template-columns: 1fr 1fr; }
+  .detail-layout { grid-template-columns: 1fr; }
+  .sec-nav { position: static; flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  .sec-nav .nav-label { display: none; }
+  .sec-nav button { border-left: none; border: 1px solid var(--border); border-radius: 8px; }
+  .sec-nav button.active { border-color: var(--accent); }
+}
+@media (max-width: 860px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    top: 60px;
+    width: min(300px, 84vw);
+  }
+  .sidebar.open { transform: translateX(0); box-shadow: 30px 0 60px rgba(0,0,0,0.6); }
+  .mobile-topbar { display: flex; }
+  .main { margin-left: 0; padding-top: 84px; }
+  .cat-grid { grid-template-columns: 1fr; }
+  .offer-actions { flex-direction: column; }
+  .form-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== TOPBAR (mobile) ===================== -->
+<div class="mobile-topbar">
+  <div class="logo" style="padding:0;font-size:1.1rem;">
+    <span class="logo-mark">⚡</span> Oferta<em>Genius</em>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Abrir menu">☰</button>
+</div>
+
+<!-- ===================== SIDEBAR ===================== -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo"><span class="logo-mark">⚡</span> Oferta<em>Genius</em></div>
+
+  <button class="btn-new-offer" id="btnNewOffer">＋ Criar Nova Oferta</button>
+
+  <nav class="side-nav" id="sideNav">
+    <span class="nav-label">Painel</span>
+    <a href="#dashboard" data-view="dashboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+      Dashboard
+    </a>
+    <a href="#ofertas" data-view="ofertas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-8-8V3h9.6l8 8a2 2 0 0 1 .4 2.4z"/><circle cx="7.5" cy="7.5" r="1"/></svg>
+      Minhas Ofertas
+    </a>
+    <a href="#categorias" data-view="categorias">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
+      Categorias
+    </a>
+    <a href="#alertas" data-view="alertas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+      Alertas
+      <span class="nav-badge zero" id="alertBadge">0</span>
+    </a>
+    <a href="#relatorios" data-view="relatorios">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+      Relatório de Cliques
+    </a>
+    <span class="nav-label" style="margin-top:16px;">Sistema</span>
+    <a href="#config" data-view="config">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      Configurações
+    </a>
+  </nav>
+
+  <div class="side-status">
+    <span class="pulse-dot"></span>
+    <span>Radar ativo — <span id="radarStatusTxt">monitorando</span></span>
+  </div>
+  <div class="user-chip">
+    <span class="avatar" id="userAvatar">OG</span>
+    <div>
+      <b id="userName">Meu Canal</b>
+      <span>Plano Genius • Anual</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ===================== MAIN ===================== -->
+<main class="main">
+
+  <!-- ============ DASHBOARD ============ -->
+  <section class="view" id="view-dashboard">
+    <div class="view-head">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Visão geral da sua operação de ofertas.</p>
+      </div>
+      <button class="btn btn-primary" onclick="openOfferModal()">＋ Nova Oferta</button>
+    </div>
+
+    <div class="stats-grid" id="dashStats"></div>
+
+    <div class="card" style="margin-bottom:14px;">
+      <h3>Cliques por dia</h3>
+      <p class="card-sub">Últimos 14 dias — todas as ofertas</p>
+      <div class="chart-wrap" id="dashLineChart"></div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="card">
+        <h3>Top ofertas por cliques</h3>
+        <p class="card-sub">Últimos 7 dias</p>
+        <div class="hbars" id="dashTopBars"></div>
+      </div>
+      <div class="card">
+        <h3>Últimas ofertas cadastradas</h3>
+        <p class="card-sub">As 5 mais recentes</p>
+        <div class="offer-list" id="dashRecent"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MINHAS OFERTAS ============ -->
+  <section class="view" id="view-ofertas">
+    <div class="view-head">
+      <div>
+        <h1>Minhas Ofertas</h1>
+        <p id="ofertasCount">—</p>
+      </div>
+      <button class="btn btn-primary" onclick="openOfferModal()">＋ Nova Oferta</button>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="🔍 Buscar oferta...">
+      <select id="filterCat"></select>
+      <select id="filterStatus">
+        <option value="">Todos os status</option>
+        <option value="ativa">✅ Ativas</option>
+        <option value="expirando">⏳ Expirando</option>
+        <option value="expirada">❌ Expiradas</option>
+      </select>
+      <select id="sortBy">
+        <option value="recent">Mais recentes</option>
+        <option value="clicks">Mais cliques (7d)</option>
+        <option value="price">Menor preço</option>
+      </select>
+    </div>
+
+    <div class="offer-list" id="offerList"></div>
+  </section>
+
+  <!-- ============ CATEGORIAS ============ -->
+  <section class="view" id="view-categorias">
+    <div class="view-head">
+      <div>
+        <h1>Categorias</h1>
+        <p>Organize suas ofertas por nicho.</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:18px;">
+      <h3>Nova categoria</h3>
+      <p class="card-sub">Ex.: Pet, Games, Bebês...</p>
+      <div class="toolbar" style="margin-bottom:0;">
+        <input type="text" id="newCatEmoji" placeholder="Emoji (ex.: 🐶)" style="max-width:140px;">
+        <input type="text" id="newCatName" placeholder="Nome da categoria" style="max-width:260px;">
+        <button class="btn btn-primary" onclick="addCategory()">Adicionar</button>
+      </div>
+    </div>
+
+    <div class="cat-grid" id="catGrid"></div>
+  </section>
+
+  <!-- ============ ALERTAS ============ -->
+  <section class="view" id="view-alertas">
+    <div class="view-head">
+      <div>
+        <h1>Alertas</h1>
+        <p>O Radar vigia seus links para você agir antes do clique perdido.</p>
+      </div>
+    </div>
+
+    <div class="radar-card">
+      <span class="pulse-dot" style="width:12px;height:12px;"></span>
+      <div class="radar-info">
+        <b>Radar de Links</b>
+        <span id="radarLastCheck">Última verificação: agora mesmo</span>
+      </div>
+      <button class="btn btn-primary" id="btnRadar" onclick="runRadar()">
+        <span class="spinner"></span>
+        <span class="btn-txt">Verificar links agora</span>
+      </button>
+    </div>
+
+    <div id="alertsContainer"></div>
+  </section>
+
+  <!-- ============ RELATÓRIOS ============ -->
+  <section class="view" id="view-relatorios">
+    <div class="view-head">
+      <div>
+        <h1>Relatório de Cliques</h1>
+        <p>Descubra onde seu público está clicando — e onde está o lucro.</p>
+      </div>
+      <button class="btn" id="btnTableView" onclick="toggleTableView()">☰ Ver como tabela</button>
+    </div>
+
+    <div class="filter-row">
+      <div class="seg" id="periodSeg">
+        <button data-days="7">7 dias</button>
+        <button data-days="14" class="active">14 dias</button>
+        <button data-days="30">30 dias</button>
+      </div>
+      <select id="reportCat" style="width:auto;min-width:170px;"></select>
+    </div>
+
+    <div id="reportCharts">
+      <div class="card" style="margin-bottom:14px;">
+        <h3>Cliques por dia</h3>
+        <p class="card-sub" id="reportLineSub">—</p>
+        <div class="chart-wrap" id="reportLineChart"></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Cliques por categoria</h3>
+          <p class="card-sub" id="reportCatSub">—</p>
+          <div class="hbars" id="reportCatBars"></div>
+        </div>
+        <div class="card">
+          <h3>Top ofertas</h3>
+          <p class="card-sub" id="reportTopSub">—</p>
+          <div class="hbars" id="reportTopBars"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="reportTable" style="display:none;" class="card">
+      <h3>Todas as ofertas — cliques no período</h3>
+      <p class="card-sub" id="reportTableSub">—</p>
+      <div style="overflow-x:auto;">
+        <table class="report-table" id="reportTableEl"></table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONFIGURAÇÕES ============ -->
+  <section class="view" id="view-config">
+    <div class="view-head">
+      <div>
+        <h1>Configurações</h1>
+        <p>Seu canal, seus dados.</p>
+      </div>
+    </div>
+
+    <div class="config-grid">
+      <div class="card">
+        <h3>Perfil do canal</h3>
+        <p class="card-sub">Como seu canal aparece no painel.</p>
+        <div class="field">
+          <label for="cfgName">Nome do canal</label>
+          <input type="text" id="cfgName" placeholder="Ex.: Achadinhos da Lê">
+        </div>
+        <div class="field">
+          <label for="cfgGoal">Meta mensal de cliques</label>
+          <input type="number" id="cfgGoal" min="0" placeholder="Ex.: 10000">
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">Salvar perfil</button>
+      </div>
+
+      <div class="card">
+        <h3>Dados</h3>
+        <p class="card-sub">Backup, restauração e demonstração.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button class="btn" onclick="exportData()">⬇ Exportar dados (JSON)</button>
+          <label class="btn" style="cursor:pointer;">
+            ⬆ Importar dados (JSON)
+            <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+          </label>
+          <button class="btn" onclick="resetDemo()">↻ Restaurar dados de demonstração</button>
+          <button class="btn btn-danger" onclick="wipeAll()">🗑 Apagar todos os dados</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Links úteis</h3>
+        <p class="card-sub">Atalhos do ecossistema OfertaGenius.</p>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a class="btn" href="index.html">🏠 Ver página de vendas</a>
+          <a class="btn" href="mailto:suporte@ofertagenius.com">💬 Falar com o suporte</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DETALHE DA OFERTA (renderizado via JS) ============ -->
+  <section class="view" id="view-oferta"></section>
+
+</main>
+
+<!-- ===================== MODAL NOVA/EDITAR OFERTA ===================== -->
+<div class="modal-overlay" id="offerModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">Nova Oferta</h3>
+      <button class="modal-close" onclick="closeOfferModal()" aria-label="Fechar">✕</button>
+    </div>
+
+    <div class="field">
+      <label for="fUrl">Link da oferta</label>
+      <div class="url-row">
+        <input type="url" id="fUrl" placeholder="Cole o link aqui (Shopee, Amazon, ML...)">
+        <button class="btn btn-primary" id="btnRobot" onclick="robotFetch()">
+          <span class="spinner"></span>
+          <span class="btn-txt">🤖 Puxar dados</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fTitle">Título do produto</label>
+      <input type="text" id="fTitle" placeholder="Ex.: Fone Bluetooth TWS — 43% OFF">
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <label for="fEmoji">Ícone</label>
+        <select id="fEmoji">
+          <option>🛍️</option><option>🎧</option><option>📱</option><option>💻</option>
+          <option>⌚</option><option>👟</option><option>👕</option><option>👗</option>
+          <option>🍳</option><option>🏠</option><option>💺</option><option>🤖</option>
+          <option>✨</option><option>💄</option><option>🥤</option><option>🛒</option>
+          <option>🐶</option><option>🎮</option><option>👶</option><option>📦</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="fStore">Loja</label>
+        <select id="fStore">
+          <option>Shopee</option><option>Amazon</option><option>Mercado Livre</option>
+          <option>Magalu</option><option>AliExpress</option><option>Americanas</option>
+          <option>Hotmart</option><option>Outra</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <label for="fCat">Categoria</label>
+        <select id="fCat"></select>
+      </div>
+      <div class="field">
+        <label for="fExpires">Validade da oferta</label>
+        <input type="datetime-local" id="fExpires">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <label for="fPrice">Preço promocional (R$)</label>
+        <input type="number" id="fPrice" min="0" step="0.01" placeholder="129.90">
+      </div>
+      <div class="field">
+        <label for="fOldPrice">Preço original (R$)</label>
+        <input type="number" id="fOldPrice" min="0" step="0.01" placeholder="229.90">
+      </div>
+    </div>
+
+    <div class="modal-foot">
+      <button class="btn" onclick="closeOfferModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveOffer()">Salvar oferta</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+<div class="hover-tip" id="hoverTip"></div>
+
+<script>
+/* ==========================================================================
+   OFERTAGENIUS APP — estado, persistência e dados de demonstração
+   ========================================================================== */
+'use strict';
+
+var LS_KEY = 'ofertagenius_v1';
+var HISTORY_DAYS = 30;
+var state = null;
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function fmt(n) { return Number(n || 0).toLocaleString('pt-BR'); }
+function fmtBRL(n) { return Number(n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+function uid() { return 'id' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function localISO(d) {
+  d = d || new Date();
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+}
+function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
+
+/* PRNG com semente — histórico de cliques estável e orgânico */
+function mulberry32(a) {
+  return function () {
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function makeClicks(base, seed) {
+  var rnd = mulberry32(seed);
+  var days = [];
+  for (var i = 0; i < HISTORY_DAYS; i++) {
+    var weekendBoost = ((i % 7 === 5) || (i % 7 === 6)) ? 1.4 : 1;
+    var trend = 0.75 + (i / HISTORY_DAYS) * 0.5;
+    days.push(Math.max(0, Math.round(base * weekendBoost * trend * (0.55 + rnd() * 0.9))));
+  }
+  return { days: days, last: localISO() };
+}
+
+function seedState() {
+  var now = Date.now();
+  var H = 3600000, D = 86400000;
+  function iso(t) { return new Date(t).toISOString(); }
+  return {
+    settings: { name: 'Achadinhos da Lê', goal: 10000, lastRadar: iso(now) },
+    categories: [
+      { id: 'eletronicos', emoji: '⚡', name: 'Eletrônicos' },
+      { id: 'moda',        emoji: '👗', name: 'Moda' },
+      { id: 'casa',        emoji: '🏠', name: 'Casa & Cozinha' },
+      { id: 'beleza',      emoji: '💄', name: 'Beleza' },
+      { id: 'mercado',     emoji: '🛒', name: 'Mercado' },
+      { id: 'saude',       emoji: '⚖️', name: 'Saúde & Emagrecimento' }
+    ],
+    offers: [
+      { id: 'demo-emagre', title: 'Protocolo Emagrecer com Saúde 30D — Programa Completo', url: 'https://pay.hotmart.com/protocolo-emagrecer-30d', store: 'Hotmart', category: 'saude', emoji: '⚖️', price: 97.00, oldPrice: 197.00, createdAt: iso(now - 4 * D), expiresAt: iso(now + 3 * D), manualExpired: false, clicks: makeClicks(58, 123) },
+      { id: uid() + '1', title: 'Fone Bluetooth TWS com Cancelamento de Ruído — 43% OFF', url: 'https://shopee.com.br/oferta-fone-tws', store: 'Shopee', category: 'eletronicos', emoji: '🎧', price: 129.90, oldPrice: 229.90, createdAt: iso(now - 12 * D), expiresAt: iso(now + 5 * D), manualExpired: false, clicks: makeClicks(48, 11) },
+      { id: uid() + '2', title: 'Air Fryer 5L Digital Inox — Frete Grátis', url: 'https://www.magazineluiza.com.br/air-fryer-5l', store: 'Magalu', category: 'casa', emoji: '🍳', price: 379.90, oldPrice: 549.90, createdAt: iso(now - 9 * D), expiresAt: iso(now + 30 * H), manualExpired: false, clicks: makeClicks(64, 22) },
+      { id: uid() + '3', title: 'Tênis Runner Masculino Amortecimento — Cupom 20%', url: 'https://www.amazon.com.br/tenis-runner', store: 'Amazon', category: 'moda', emoji: '👟', price: 159.90, oldPrice: 299.90, createdAt: iso(now - 7 * D), expiresAt: iso(now + 10 * D), manualExpired: false, clicks: makeClicks(31, 33) },
+      { id: uid() + '4', title: 'Smartphone 128GB 8GB RAM — Oferta Relâmpago', url: 'https://pt.aliexpress.com/smartphone-128', store: 'AliExpress', category: 'eletronicos', emoji: '📱', price: 1099.00, oldPrice: 1599.00, createdAt: iso(now - 15 * D), expiresAt: iso(now - 2 * D), manualExpired: false, clicks: makeClicks(72, 44) },
+      { id: uid() + '5', title: 'Serum Facial Vitamina C 30ml — Leve 2 Pague 1', url: 'https://shopee.com.br/serum-vitc', store: 'Shopee', category: 'beleza', emoji: '✨', price: 49.90, oldPrice: 89.90, createdAt: iso(now - 5 * D), expiresAt: iso(now + 8 * D), manualExpired: false, clicks: makeClicks(26, 55) },
+      { id: uid() + '6', title: 'Robô Aspirador com Mapeamento a Laser', url: 'https://www.mercadolivre.com.br/robo-aspirador', store: 'Mercado Livre', category: 'casa', emoji: '🤖', price: 899.00, oldPrice: 1499.00, createdAt: iso(now - 20 * D), expiresAt: iso(now - 6 * D), manualExpired: false, clicks: makeClicks(19, 66) },
+      { id: uid() + '7', title: 'Kit 3 Camisetas Básicas 100% Algodão', url: 'https://shopee.com.br/kit-camisetas', store: 'Shopee', category: 'moda', emoji: '👕', price: 89.90, oldPrice: 149.90, createdAt: iso(now - 3 * D), expiresAt: null, manualExpired: false, clicks: makeClicks(22, 77) },
+      { id: uid() + '8', title: 'Cadeira Gamer Reclinável com Apoio Lombar', url: 'https://www.amazon.com.br/cadeira-gamer', store: 'Amazon', category: 'eletronicos', emoji: '💺', price: 699.90, oldPrice: 1099.90, createdAt: iso(now - 2 * D), expiresAt: iso(now + 4 * D), manualExpired: false, clicks: makeClicks(38, 88) },
+      { id: uid() + '9', title: 'Garrafa Térmica Inox 1L — 12h Gelada', url: 'https://www.americanas.com.br/garrafa-inox', store: 'Americanas', category: 'casa', emoji: '🥤', price: 59.90, oldPrice: 99.90, createdAt: iso(now - 1 * D), expiresAt: iso(now + 15 * D), manualExpired: false, clicks: makeClicks(12, 99) },
+      { id: uid() + 'a', title: 'Café Especial Torrado em Grãos 1kg', url: 'https://www.mercadolivre.com.br/cafe-graos', store: 'Mercado Livre', category: 'mercado', emoji: '🛒', price: 64.90, oldPrice: 94.90, createdAt: iso(now - 6 * D), expiresAt: iso(now + 20 * D), manualExpired: false, clicks: makeClicks(17, 101) }
+    ]
+  };
+}
+
+function load() {
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    state = raw ? JSON.parse(raw) : seedState();
+  } catch (e) { state = seedState(); }
+  migrate();
+  normalizeClicks();
+  save();
+}
+
+/* Garante que dados salvos de versões anteriores recebam os exemplos novos */
+function migrate() {
+  if (!state.categories.some(function (c) { return c.id === 'saude'; })) {
+    state.categories.push({ id: 'saude', emoji: '⚖️', name: 'Saúde & Emagrecimento' });
+  }
+  if (!state.offers.some(function (o) { return o.id === 'demo-emagre'; })) {
+    var now = Date.now(), D = 86400000;
+    state.offers.unshift({
+      id: 'demo-emagre',
+      title: 'Protocolo Emagrecer com Saúde 30D — Programa Completo',
+      url: 'https://pay.hotmart.com/protocolo-emagrecer-30d',
+      store: 'Hotmart', category: 'saude', emoji: '⚖️',
+      price: 97.00, oldPrice: 197.00,
+      createdAt: new Date(now - 4 * D).toISOString(),
+      expiresAt: new Date(now + 3 * D).toISOString(),
+      manualExpired: false,
+      clicks: makeClicks(58, 123)
+    });
+  }
+}
+function save() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+/* Desloca o histórico de cliques conforme os dias passam */
+function normalizeClicks() {
+  var today = localISO();
+  state.offers.forEach(function (o) {
+    var diff = daysBetween(o.clicks.last, today);
+    if (diff > 0) {
+      for (var i = 0; i < Math.min(diff, HISTORY_DAYS); i++) {
+        o.clicks.days.shift();
+        o.clicks.days.push(0);
+      }
+      o.clicks.last = today;
+    }
+  });
+}
+
+/* ==========================================================================
+   Regras de negócio
+   ========================================================================== */
+function statusOf(o) {
+  if (o.manualExpired) return 'expirada';
+  if (o.expiresAt) {
+    var t = new Date(o.expiresAt).getTime();
+    if (t < Date.now()) return 'expirada';
+    if (t - Date.now() < 48 * 3600000) return 'expirando';
+  }
+  return 'ativa';
+}
+var STATUS_META = {
+  ativa:     { cls: 'badge-live', label: '✅ Ativa' },
+  expirando: { cls: 'badge-warn', label: '⏳ Expira em breve' },
+  expirada:  { cls: 'badge-dead', label: '❌ Expirada' }
+};
+function sumLast(o, n) {
+  return o.clicks.days.slice(-n).reduce(function (a, b) { return a + b; }, 0);
+}
+function catById(id) {
+  for (var i = 0; i < state.categories.length; i++)
+    if (state.categories[i].id === id) return state.categories[i];
+  return { id: '', emoji: '📦', name: 'Sem categoria' };
+}
+function alertOffers() {
+  return {
+    dead: state.offers.filter(function (o) { return statusOf(o) === 'expirada'; }),
+    warn: state.offers.filter(function (o) { return statusOf(o) === 'expirando'; })
+  };
+}
+
+/* ==========================================================================
+   GRÁFICOS — série única em verde neon, texto sempre em tokens de texto
+   ========================================================================== */
+function niceMax(v) {
+  if (v <= 10) return 10;
+  var mag = Math.pow(10, Math.floor(Math.log10(v)));
+  var norm = v / mag;
+  var nice = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10;
+  return nice * mag;
+}
+function dayLabel(offsetFromToday) {
+  var d = new Date(Date.now() - offsetFromToday * 86400000);
+  return d.getDate() + '/' + (d.getMonth() + 1);
+}
+
+/* Linha/área: values[0] = dia mais antigo ... último = hoje */
+function renderLineChart(containerId, values) {
+  var el = document.getElementById(containerId);
+  var W = 820, H = 240, padL = 44, padR = 14, padT = 14, padB = 30;
+  var n = values.length;
+  var max = niceMax(Math.max.apply(null, values.concat([1])));
+  var iw = W - padL - padR, ih = H - padT - padB;
+  function x(i) { return padL + (n === 1 ? iw / 2 : (i / (n - 1)) * iw); }
+  function y(v) { return padT + ih - (v / max) * ih; }
+
+  var grid = '', ylab = '';
+  for (var g = 0; g <= 3; g++) {
+    var gv = max * g / 3, gy = y(gv);
+    grid += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '" stroke="#232323" stroke-width="1"/>';
+    ylab += '<text x="' + (padL - 8) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="11" fill="#7A7A7A">' + fmt(Math.round(gv)) + '</text>';
+  }
+  var xlab = '', step = Math.ceil(n / 7);
+  for (var i = 0; i < n; i += step) {
+    xlab += '<text x="' + x(i) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="11" fill="#7A7A7A">' + dayLabel(n - 1 - i) + '</text>';
+  }
+
+  var pts = values.map(function (v, i) { return x(i).toFixed(1) + ',' + y(v).toFixed(1); });
+  var line = 'M' + pts.join(' L');
+  var area = line + ' L' + x(n - 1).toFixed(1) + ',' + (padT + ih) + ' L' + x(0).toFixed(1) + ',' + (padT + ih) + ' Z';
+
+  el.innerHTML =
+    '<svg class="chart-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Gráfico de cliques por dia">' +
+      '<defs><linearGradient id="areaGrad-' + containerId + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="#B4FF39" stop-opacity="0.22"/>' +
+        '<stop offset="100%" stop-color="#B4FF39" stop-opacity="0"/>' +
+      '</linearGradient></defs>' +
+      grid + ylab + xlab +
+      '<path d="' + area + '" fill="url(#areaGrad-' + containerId + ')"/>' +
+      '<path d="' + line + '" fill="none" stroke="#B4FF39" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<line class="xh-line" x1="0" y1="' + padT + '" x2="0" y2="' + (padT + ih) + '" stroke="#3A3A3A" stroke-width="1" opacity="0"/>' +
+      '<circle class="xh-dot" r="4.5" fill="#B4FF39" stroke="#121212" stroke-width="2" opacity="0"/>' +
+      '<rect class="xh-overlay" x="' + padL + '" y="' + padT + '" width="' + iw + '" height="' + ih + '" fill="transparent"/>' +
+    '</svg>' +
+    '<div class="chart-tooltip"></div>';
+
+  var svg = el.querySelector('svg');
+  var overlay = el.querySelector('.xh-overlay');
+  var xhLine = el.querySelector('.xh-line');
+  var xhDot = el.querySelector('.xh-dot');
+  var tip = el.querySelector('.chart-tooltip');
+
+  function move(clientX) {
+    var rect = svg.getBoundingClientRect();
+    var vx = (clientX - rect.left) / rect.width * W;
+    var idx = Math.round((vx - padL) / iw * (n - 1));
+    idx = Math.max(0, Math.min(n - 1, idx));
+    var cx = x(idx), cy = y(values[idx]);
+    xhLine.setAttribute('x1', cx); xhLine.setAttribute('x2', cx); xhLine.setAttribute('opacity', 1);
+    xhDot.setAttribute('cx', cx); xhDot.setAttribute('cy', cy); xhDot.setAttribute('opacity', 1);
+    tip.innerHTML = '<span class="tip-date">' + dayLabel(n - 1 - idx) + '</span><b>' + fmt(values[idx]) + '</b> cliques';
+    tip.style.left = (cx / W * rect.width) + 'px';
+    tip.style.top = (cy / H * rect.height) + 'px';
+    tip.style.opacity = 1;
+  }
+  overlay.addEventListener('mousemove', function (e) { move(e.clientX); });
+  overlay.addEventListener('mouseleave', function () {
+    xhLine.setAttribute('opacity', 0); xhDot.setAttribute('opacity', 0); tip.style.opacity = 0;
+  });
+}
+
+/* Barras horizontais: items = [{emoji, label, value, tip}] */
+function renderHBars(containerId, items) {
+  var el = document.getElementById(containerId);
+  if (!items.length) {
+    el.innerHTML = '<div class="empty-state" style="padding:24px;"><div>Sem dados no período.</div></div>';
+    return;
+  }
+  var max = Math.max.apply(null, items.map(function (i) { return i.value; }).concat([1]));
+  el.innerHTML = items.map(function (it) {
+    var w = Math.max(1, (it.value / max) * 100);
+    return '<div class="hbar-row" data-tip="' + esc(it.tip || (it.label + ' — ' + fmt(it.value) + ' cliques')) + '">' +
+      '<span class="hbar-label">' + esc(it.emoji ? it.emoji + ' ' : '') + esc(it.label) + '</span>' +
+      '<span class="hbar-track"><span class="hbar-fill" style="width:' + w.toFixed(1) + '%"></span></span>' +
+      '<span class="hbar-val">' + fmt(it.value) + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+/* ==========================================================================
+   RENDER — Dashboard
+   ========================================================================== */
+function renderDashboard() {
+  var actives = state.offers.filter(function (o) { return statusOf(o) === 'ativa'; });
+  var al = alertOffers();
+  var c7 = state.offers.reduce(function (s, o) { return s + sumLast(o, 7); }, 0);
+  var cPrev7 = state.offers.reduce(function (s, o) {
+    return s + o.clicks.days.slice(-14, -7).reduce(function (a, b) { return a + b; }, 0);
+  }, 0);
+  var deltaPct = cPrev7 > 0 ? Math.round((c7 - cPrev7) / cPrev7 * 100) : 0;
+  var top = state.offers.slice().sort(function (a, b) { return sumLast(b, 7) - sumLast(a, 7); })[0];
+
+  document.getElementById('dashStats').innerHTML =
+    statTile('Ofertas ativas', fmt(actives.length), 'de ' + fmt(state.offers.length) + ' cadastradas',
+      '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-8-8V3h9.6l8 8a2 2 0 0 1 .4 2.4z"/>') +
+    statTile('Cliques (7 dias)', fmt(c7),
+      deltaPct >= 0
+        ? '<span class="up">▲ ' + deltaPct + '%</span> vs semana anterior'
+        : '<span class="down">▼ ' + Math.abs(deltaPct) + '%</span> vs semana anterior',
+      '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>') +
+    statTile('Alertas ativos', fmt(al.dead.length + al.warn.length),
+      fmt(al.dead.length) + ' expiradas · ' + fmt(al.warn.length) + ' expirando',
+      '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>') +
+    statTile('Oferta destaque', top ? fmt(sumLast(top, 7)) : '0',
+      top ? esc(top.emoji + ' ' + top.title.slice(0, 34) + (top.title.length > 34 ? '…' : '')) : 'Cadastre sua primeira oferta',
+      '<path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 7.7l5.4-.8z"/>');
+
+  var series = aggSeries(state.offers, 14);
+  renderLineChart('dashLineChart', series);
+
+  var tops = state.offers.slice()
+    .sort(function (a, b) { return sumLast(b, 7) - sumLast(a, 7); })
+    .slice(0, 5)
+    .map(function (o) { return { emoji: o.emoji, label: o.title, value: sumLast(o, 7) }; });
+  renderHBars('dashTopBars', tops);
+
+  var recent = state.offers.slice()
+    .sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); })
+    .slice(0, 5);
+  document.getElementById('dashRecent').innerHTML = recent.length
+    ? recent.map(function (o) { return offerRow(o, true); }).join('')
+    : emptyState('Nenhuma oferta ainda', 'Clique em "Nova Oferta" para começar.');
+}
+
+function statTile(label, value, delta, iconPath) {
+  return '<div class="stat-tile">' +
+    '<div class="stat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + iconPath + '</svg>' + label + '</div>' +
+    '<div class="stat-value">' + value + '</div>' +
+    '<div class="stat-delta">' + delta + '</div>' +
+  '</div>';
+}
+
+function aggSeries(offers, n) {
+  var out = [];
+  for (var i = 0; i < n; i++) out.push(0);
+  offers.forEach(function (o) {
+    var d = o.clicks.days.slice(-n);
+    d.forEach(function (v, i) { out[i + (n - d.length)] += v; });
+  });
+  return out;
+}
+
+/* ==========================================================================
+   RENDER — Minhas Ofertas
+   ========================================================================== */
+function offerRow(o, compact) {
+  var st = statusOf(o);
+  var meta = STATUS_META[st];
+  var cat = catById(o.category);
+  var actions = compact ? '' :
+    '<div class="offer-actions">' +
+      '<button class="btn btn-sm btn-icon" data-tip="Copiar link" onclick="copyLink(\'' + o.id + '\')">📋</button>' +
+      '<button class="btn btn-sm btn-icon" data-tip="Abrir oferta (registra 1 clique)" onclick="openOffer(\'' + o.id + '\')">↗</button>' +
+      '<button class="btn btn-sm btn-icon" data-tip="Editar" onclick="openOfferModal(\'' + o.id + '\')">✏️</button>' +
+      (st === 'expirada'
+        ? '<button class="btn btn-sm btn-icon" data-tip="Reativar oferta" onclick="reactivateOffer(\'' + o.id + '\')">↻</button>'
+        : '<button class="btn btn-sm btn-icon" data-tip="Marcar como expirada" onclick="expireOffer(\'' + o.id + '\')">🚫</button>') +
+      '<button class="btn btn-sm btn-icon btn-danger" data-tip="Excluir" onclick="deleteOffer(\'' + o.id + '\')">🗑</button>' +
+    '</div>';
+  return '<div class="offer-card' + (st === 'expirada' ? ' is-dead' : '') + '" onclick="gotoOffer(\'' + o.id + '\', event)" data-tip="Abrir página da oferta">' +
+    '<span class="offer-thumb">' + esc(o.emoji) + '</span>' +
+    '<div class="offer-body">' +
+      '<b>' + esc(o.title) + '</b>' +
+      '<div class="offer-meta">' +
+        '<span>' + esc(cat.emoji + ' ' + cat.name) + '</span><span>·</span>' +
+        '<span>' + esc(o.store) + '</span><span>·</span>' +
+        '<span class="price">' + fmtBRL(o.price) + '</span>' +
+        (o.oldPrice ? '<span class="old-price">' + fmtBRL(o.oldPrice) + '</span>' : '') +
+      '</div>' +
+    '</div>' +
+    '<div class="offer-clicks"><b>' + fmt(sumLast(o, 7)) + '</b><span>cliques 7d</span></div>' +
+    '<span class="badge ' + meta.cls + '">' + meta.label + '</span>' +
+    actions +
+  '</div>';
+}
+
+function emptyState(title, sub) {
+  return '<div class="empty-state"><div class="big">📦</div><b>' + esc(title) + '</b><div>' + esc(sub) + '</div></div>';
+}
+
+function renderOfertas() {
+  var q = document.getElementById('searchInput').value.trim().toLowerCase();
+  var cat = document.getElementById('filterCat').value;
+  var st = document.getElementById('filterStatus').value;
+  var sort = document.getElementById('sortBy').value;
+
+  var list = state.offers.filter(function (o) {
+    if (q && o.title.toLowerCase().indexOf(q) === -1 && o.store.toLowerCase().indexOf(q) === -1) return false;
+    if (cat && o.category !== cat) return false;
+    if (st && statusOf(o) !== st) return false;
+    return true;
+  });
+  if (sort === 'clicks') list.sort(function (a, b) { return sumLast(b, 7) - sumLast(a, 7); });
+  else if (sort === 'price') list.sort(function (a, b) { return a.price - b.price; });
+  else list.sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
+
+  document.getElementById('ofertasCount').textContent =
+    fmt(list.length) + ' de ' + fmt(state.offers.length) + ' ofertas';
+  document.getElementById('offerList').innerHTML = list.length
+    ? list.map(function (o) { return offerRow(o); }).join('')
+    : emptyState('Nada por aqui', 'Ajuste os filtros ou cadastre uma nova oferta.');
+}
+
+function fillCatSelects() {
+  var opts = state.categories.map(function (c) {
+    return '<option value="' + esc(c.id) + '">' + esc(c.emoji + ' ' + c.name) + '</option>';
+  }).join('');
+  document.getElementById('filterCat').innerHTML = '<option value="">Todas as categorias</option>' + opts;
+  document.getElementById('reportCat').innerHTML = '<option value="">Todas as categorias</option>' + opts;
+  document.getElementById('fCat').innerHTML = opts;
+}
+
+/* ==========================================================================
+   Ações de oferta
+   ========================================================================== */
+function findOffer(id) {
+  for (var i = 0; i < state.offers.length; i++)
+    if (state.offers[i].id === id) return state.offers[i];
+  return null;
+}
+function copyLink(id) {
+  var o = findOffer(id);
+  if (!o) return;
+  var done = function () { toast('Link copiado: ' + o.title.slice(0, 40) + '…'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(o.url).then(done, function () { toast('Não foi possível copiar.', 'error'); });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = o.url; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { toast('Não foi possível copiar.', 'error'); }
+    document.body.removeChild(ta);
+  }
+}
+function openOffer(id) {
+  var o = findOffer(id);
+  if (!o) return;
+  o.clicks.days[o.clicks.days.length - 1]++;
+  save(); renderCurrent();
+  toast('+1 clique registrado em "' + o.title.slice(0, 34) + '…"');
+  window.open(o.url, '_blank');
+}
+function expireOffer(id) {
+  var o = findOffer(id);
+  if (!o) return;
+  o.manualExpired = true;
+  save(); renderCurrent();
+  toast('Oferta marcada como expirada.', 'warn');
+}
+function reactivateOffer(id) {
+  var o = findOffer(id);
+  if (!o) return;
+  o.manualExpired = false;
+  if (o.expiresAt && new Date(o.expiresAt) < new Date()) {
+    o.expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
+  }
+  save(); renderCurrent();
+  toast('Oferta reativada por mais 7 dias. ✅');
+}
+function deleteOffer(id) {
+  var o = findOffer(id);
+  if (!o) return;
+  if (!confirm('Excluir a oferta "' + o.title + '"?\nEssa ação não pode ser desfeita.')) return;
+  state.offers = state.offers.filter(function (x) { return x.id !== id; });
+  save(); renderCurrent();
+  toast('Oferta excluída.', 'warn');
+}
+
+/* ==========================================================================
+   RENDER — Categorias
+   ========================================================================== */
+function renderCategorias() {
+  var grid = document.getElementById('catGrid');
+  grid.innerHTML = state.categories.map(function (c) {
+    var offers = state.offers.filter(function (o) { return o.category === c.id; });
+    var clicks = offers.reduce(function (s, o) { return s + sumLast(o, 7); }, 0);
+    return '<div class="cat-card">' +
+      '<span class="cat-emoji">' + esc(c.emoji) + '</span>' +
+      '<b>' + esc(c.name) + '</b>' +
+      '<span class="cat-meta">' + fmt(offers.length) + ' ofertas · ' + fmt(clicks) + ' cliques (7d)</span>' +
+      '<div class="cat-actions">' +
+        '<button class="btn btn-sm" onclick="renameCategory(\'' + c.id + '\')">Renomear</button>' +
+        '<button class="btn btn-sm btn-danger" onclick="deleteCategory(\'' + c.id + '\')">Excluir</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+function addCategory() {
+  var emoji = document.getElementById('newCatEmoji').value.trim() || '📦';
+  var name = document.getElementById('newCatName').value.trim();
+  if (!name) { toast('Dê um nome para a categoria.', 'error'); return; }
+  var id = name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-');
+  if (state.categories.some(function (c) { return c.id === id; })) {
+    toast('Já existe uma categoria com esse nome.', 'error'); return;
+  }
+  state.categories.push({ id: id, emoji: emoji, name: name });
+  document.getElementById('newCatEmoji').value = '';
+  document.getElementById('newCatName').value = '';
+  save(); fillCatSelects(); renderCategorias();
+  toast('Categoria "' + name + '" criada. ✅');
+}
+function renameCategory(id) {
+  var c = catById(id);
+  var name = prompt('Novo nome para a categoria:', c.name);
+  if (!name || !name.trim()) return;
+  c.name = name.trim();
+  save(); fillCatSelects(); renderCurrent();
+  toast('Categoria renomeada.');
+}
+function deleteCategory(id) {
+  var inUse = state.offers.filter(function (o) { return o.category === id; }).length;
+  if (inUse > 0) {
+    toast('Essa categoria tem ' + inUse + ' oferta(s). Mova-as antes de excluir.', 'error');
+    return;
+  }
+  if (!confirm('Excluir esta categoria?')) return;
+  state.categories = state.categories.filter(function (c) { return c.id !== id; });
+  save(); fillCatSelects(); renderCategorias();
+  toast('Categoria excluída.', 'warn');
+}
+
+/* ==========================================================================
+   RENDER — Alertas
+   ========================================================================== */
+function renderAlertas() {
+  var al = alertOffers();
+  var html = '';
+
+  if (al.dead.length) {
+    html += '<div class="alert-section"><h3><span class="badge badge-dead">❌ Expiradas</span> — troque o link ou remova</h3>' +
+      al.dead.map(function (o) {
+        return '<div class="alert-card dead">' +
+          '<span class="offer-thumb">' + esc(o.emoji) + '</span>' +
+          '<div class="offer-body"><b>' + esc(o.title) + '</b>' +
+            '<div class="offer-meta"><span>' + esc(o.store) + '</span><span>·</span><span>' + fmt(sumLast(o, 7)) + ' cliques nos últimos 7d indo para o vazio</span></div>' +
+          '</div>' +
+          '<div class="offer-actions">' +
+            '<button class="btn btn-sm" onclick="openOfferModal(\'' + o.id + '\')">Substituir link</button>' +
+            '<button class="btn btn-sm" onclick="reactivateOffer(\'' + o.id + '\')">Reativar</button>' +
+            '<button class="btn btn-sm btn-danger" onclick="deleteOffer(\'' + o.id + '\')">Excluir</button>' +
+          '</div>' +
+        '</div>';
+      }).join('') + '</div>';
+  }
+
+  if (al.warn.length) {
+    html += '<div class="alert-section"><h3><span class="badge badge-warn">⏳ Expirando em 48h</span> — renove ou prepare a troca</h3>' +
+      al.warn.map(function (o) {
+        var hrs = Math.max(1, Math.round((new Date(o.expiresAt) - Date.now()) / 3600000));
+        return '<div class="alert-card warn">' +
+          '<span class="offer-thumb">' + esc(o.emoji) + '</span>' +
+          '<div class="offer-body"><b>' + esc(o.title) + '</b>' +
+            '<div class="offer-meta"><span>' + esc(o.store) + '</span><span>·</span><span>expira em ~' + hrs + 'h</span></div>' +
+          '</div>' +
+          '<div class="offer-actions">' +
+            '<button class="btn btn-sm" onclick="renewOffer(\'' + o.id + '\')">Renovar +7 dias</button>' +
+            '<button class="btn btn-sm" onclick="openOfferModal(\'' + o.id + '\')">Editar</button>' +
+          '</div>' +
+        '</div>';
+      }).join('') + '</div>';
+  }
+
+  if (!html) {
+    html = '<div class="empty-state"><div class="big">🎉</div><b>Nenhum alerta</b><div>Todos os seus links estão saudáveis. O Radar segue vigiando.</div></div>';
+  }
+  document.getElementById('alertsContainer').innerHTML = html;
+
+  var t = new Date(state.settings.lastRadar);
+  document.getElementById('radarLastCheck').textContent =
+    'Última verificação: ' + t.toLocaleDateString('pt-BR') + ' às ' + t.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+}
+function renewOffer(id) {
+  var o = findOffer(id);
+  if (!o) return;
+  o.expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
+  o.manualExpired = false;
+  save(); renderCurrent();
+  toast('Validade renovada por +7 dias. ✅');
+}
+function runRadar() {
+  var btn = document.getElementById('btnRadar');
+  btn.classList.add('loading'); btn.disabled = true;
+  setTimeout(function () {
+    btn.classList.remove('loading'); btn.disabled = false;
+    state.settings.lastRadar = new Date().toISOString();
+    save(); renderAlertas(); updateAlertBadge();
+    var al = alertOffers();
+    var n = al.dead.length + al.warn.length;
+    toast('Radar verificou ' + fmt(state.offers.length) + ' links — ' +
+      (n ? n + ' alerta(s) encontrado(s).' : 'tudo saudável. 🎉'), n ? 'warn' : undefined);
+  }, 1200);
+}
+
+/* ==========================================================================
+   RENDER — Relatórios
+   ========================================================================== */
+var reportDays = 14;
+var tableView = false;
+
+function reportOffers() {
+  var cat = document.getElementById('reportCat').value;
+  return cat ? state.offers.filter(function (o) { return o.category === cat; }) : state.offers;
+}
+function renderRelatorios() {
+  var offers = reportOffers();
+  var subTxt = 'Últimos ' + reportDays + ' dias' +
+    (document.getElementById('reportCat').value ? ' — ' + catById(document.getElementById('reportCat').value).name : ' — todas as categorias');
+
+  document.getElementById('reportLineSub').textContent = subTxt;
+  document.getElementById('reportCatSub').textContent = subTxt;
+  document.getElementById('reportTopSub').textContent = subTxt;
+  document.getElementById('reportTableSub').textContent = subTxt;
+
+  renderLineChart('reportLineChart', aggSeries(offers, reportDays));
+
+  var byCat = state.categories.map(function (c) {
+    var v = offers.filter(function (o) { return o.category === c.id; })
+      .reduce(function (s, o) { return s + sumLast(o, reportDays); }, 0);
+    return { emoji: c.emoji, label: c.name, value: v };
+  }).filter(function (i) { return i.value > 0; })
+    .sort(function (a, b) { return b.value - a.value; });
+  renderHBars('reportCatBars', byCat);
+
+  var tops = offers.slice()
+    .sort(function (a, b) { return sumLast(b, reportDays) - sumLast(a, reportDays); })
+    .slice(0, 8)
+    .map(function (o) { return { emoji: o.emoji, label: o.title, value: sumLast(o, reportDays) }; });
+  renderHBars('reportTopBars', tops);
+
+  var rows = offers.slice()
+    .sort(function (a, b) { return sumLast(b, reportDays) - sumLast(a, reportDays); })
+    .map(function (o) {
+      var st = STATUS_META[statusOf(o)];
+      return '<tr><td>' + esc(o.emoji + ' ' + o.title) + '</td>' +
+        '<td>' + esc(catById(o.category).name) + '</td>' +
+        '<td>' + esc(o.store) + '</td>' +
+        '<td><span class="badge ' + st.cls + '">' + st.label + '</span></td>' +
+        '<td class="num">' + fmt(sumLast(o, reportDays)) + '</td></tr>';
+    }).join('');
+  document.getElementById('reportTableEl').innerHTML =
+    '<thead><tr><th>Oferta</th><th>Categoria</th><th>Loja</th><th>Status</th><th style="text-align:right;">Cliques</th></tr></thead>' +
+    '<tbody>' + (rows || '<tr><td colspan="5">Sem dados no período.</td></tr>') + '</tbody>';
+}
+function toggleTableView() {
+  tableView = !tableView;
+  document.getElementById('reportCharts').style.display = tableView ? 'none' : '';
+  document.getElementById('reportTable').style.display = tableView ? '' : 'none';
+  document.getElementById('btnTableView').textContent = tableView ? '📊 Ver gráficos' : '☰ Ver como tabela';
+}
+
+/* ==========================================================================
+   RENDER — Configurações
+   ========================================================================== */
+function renderConfig() {
+  document.getElementById('cfgName').value = state.settings.name || '';
+  document.getElementById('cfgGoal').value = state.settings.goal || '';
+}
+function saveSettings() {
+  state.settings.name = document.getElementById('cfgName').value.trim() || 'Meu Canal';
+  state.settings.goal = parseInt(document.getElementById('cfgGoal').value, 10) || 0;
+  save(); applySettings();
+  toast('Perfil salvo. ✅');
+}
+function applySettings() {
+  var name = state.settings.name || 'Meu Canal';
+  document.getElementById('userName').textContent = name;
+  var initials = name.split(/\s+/).map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+  document.getElementById('userAvatar').textContent = initials || 'OG';
+}
+function exportData() {
+  var blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ofertagenius-dados.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Backup exportado. 💾');
+}
+function importData(ev) {
+  var file = ev.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function () {
+    try {
+      var data = JSON.parse(reader.result);
+      if (!data.offers || !data.categories || !data.settings) throw new Error('formato');
+      state = data;
+      normalizeClicks(); save();
+      fillCatSelects(); applySettings(); renderCurrent(); updateAlertBadge();
+      toast('Dados importados com sucesso. ✅');
+    } catch (e) {
+      toast('Arquivo inválido. Exporte um backup pelo próprio OfertaGenius.', 'error');
+    }
+  };
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+function resetDemo() {
+  if (!confirm('Substituir os dados atuais pelos dados de demonstração?')) return;
+  state = seedState();
+  save(); fillCatSelects(); applySettings(); renderCurrent(); updateAlertBadge();
+  toast('Dados de demonstração restaurados.');
+}
+function wipeAll() {
+  if (!confirm('Apagar TODOS os dados? Essa ação não pode ser desfeita.')) return;
+  state = seedState();
+  state.offers = [];
+  state.settings.name = 'Meu Canal';
+  save(); fillCatSelects(); applySettings(); renderCurrent(); updateAlertBadge();
+  toast('Dados apagados.', 'warn');
+}
+
+/* ==========================================================================
+   MODAL — nova/editar oferta + robô de importação
+   ========================================================================== */
+var editingId = null;
+var ROBOT_POOL = [
+  { t: 'Fone Bluetooth TWS com Cancelamento de Ruído', e: '🎧', p: 129.90, op: 229.90, c: 'eletronicos' },
+  { t: 'Air Fryer 5L Digital Inox', e: '🍳', p: 379.90, op: 549.90, c: 'casa' },
+  { t: 'Tênis Runner Amortecimento Premium', e: '👟', p: 159.90, op: 299.90, c: 'moda' },
+  { t: 'Smartwatch GPS com Oxímetro', e: '⌚', p: 249.90, op: 399.90, c: 'eletronicos' },
+  { t: 'Kit 3 Camisetas Básicas 100% Algodão', e: '👕', p: 89.90, op: 149.90, c: 'moda' },
+  { t: 'Robô Aspirador com Mapeamento', e: '🤖', p: 899.00, op: 1499.00, c: 'casa' },
+  { t: 'Serum Facial Vitamina C 30ml', e: '✨', p: 49.90, op: 89.90, c: 'beleza' },
+  { t: 'Cadeira Ergonômica com Apoio Lombar', e: '💺', p: 699.90, op: 1099.90, c: 'casa' },
+  { t: 'Garrafa Térmica Inox 1L', e: '🥤', p: 59.90, op: 99.90, c: 'casa' },
+  { t: 'Mochila Impermeável para Notebook', e: '📦', p: 119.90, op: 199.90, c: 'moda' }
+];
+function storeFromUrl(url) {
+  url = url.toLowerCase();
+  if (url.indexOf('shopee') > -1) return 'Shopee';
+  if (url.indexOf('amazon') > -1 || url.indexOf('amzn') > -1) return 'Amazon';
+  if (url.indexOf('mercadolivre') > -1 || url.indexOf('meli') > -1) return 'Mercado Livre';
+  if (url.indexOf('magalu') > -1 || url.indexOf('magazineluiza') > -1) return 'Magalu';
+  if (url.indexOf('aliexpress') > -1) return 'AliExpress';
+  if (url.indexOf('americanas') > -1) return 'Americanas';
+  if (url.indexOf('hotmart') > -1) return 'Hotmart';
+  return 'Outra';
+}
+function robotFetch() {
+  var url = document.getElementById('fUrl').value.trim();
+  if (!url) { toast('Cole um link primeiro. 😉', 'error'); return; }
+  var btn = document.getElementById('btnRobot');
+  btn.classList.add('loading'); btn.disabled = true;
+  setTimeout(function () {
+    btn.classList.remove('loading'); btn.disabled = false;
+    var h = 0;
+    for (var i = 0; i < url.length; i++) h = (h * 31 + url.charCodeAt(i)) >>> 0;
+    var p = ROBOT_POOL[h % ROBOT_POOL.length];
+    document.getElementById('fTitle').value = p.t;
+    document.getElementById('fEmoji').value = p.e;
+    document.getElementById('fStore').value = storeFromUrl(url);
+    document.getElementById('fPrice').value = p.p;
+    document.getElementById('fOldPrice').value = p.op;
+    if (state.categories.some(function (c) { return c.id === p.c; }))
+      document.getElementById('fCat').value = p.c;
+    toast('🤖 Dados importados do link! Confira e salve.');
+  }, 900);
+}
+function openOfferModal(id) {
+  editingId = id || null;
+  var o = id ? findOffer(id) : null;
+  document.getElementById('modalTitle').textContent = o ? 'Editar Oferta' : 'Nova Oferta';
+  document.getElementById('fUrl').value = o ? o.url : '';
+  document.getElementById('fTitle').value = o ? o.title : '';
+  document.getElementById('fEmoji').value = o ? o.emoji : '🛍️';
+  document.getElementById('fStore').value = o ? o.store : 'Shopee';
+  document.getElementById('fCat').value = o ? o.category : (state.categories[0] ? state.categories[0].id : '');
+  document.getElementById('fPrice').value = o ? o.price : '';
+  document.getElementById('fOldPrice').value = o && o.oldPrice ? o.oldPrice : '';
+  if (o && o.expiresAt) {
+    var d = new Date(o.expiresAt);
+    document.getElementById('fExpires').value =
+      new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  } else {
+    document.getElementById('fExpires').value = '';
+  }
+  document.getElementById('offerModal').classList.add('open');
+  document.getElementById('fUrl').focus();
+}
+function closeOfferModal() {
+  document.getElementById('offerModal').classList.remove('open');
+  editingId = null;
+}
+function saveOffer() {
+  var title = document.getElementById('fTitle').value.trim();
+  var url = document.getElementById('fUrl').value.trim();
+  if (!title) { toast('A oferta precisa de um título.', 'error'); return; }
+  if (!url) { toast('A oferta precisa de um link.', 'error'); return; }
+  var expiresRaw = document.getElementById('fExpires').value;
+  var data = {
+    title: title,
+    url: url,
+    emoji: document.getElementById('fEmoji').value,
+    store: document.getElementById('fStore').value,
+    category: document.getElementById('fCat').value,
+    price: parseFloat(document.getElementById('fPrice').value) || 0,
+    oldPrice: parseFloat(document.getElementById('fOldPrice').value) || 0,
+    expiresAt: expiresRaw ? new Date(expiresRaw).toISOString() : null
+  };
+  if (editingId) {
+    var o = findOffer(editingId);
+    Object.keys(data).forEach(function (k) { o[k] = data[k]; });
+    if (o.expiresAt && new Date(o.expiresAt) > new Date()) o.manualExpired = false;
+    toast('Oferta atualizada. ✅');
+  } else {
+    var novo = {
+      id: uid(),
+      createdAt: new Date().toISOString(),
+      manualExpired: false,
+      clicks: { days: Array.apply(null, Array(HISTORY_DAYS)).map(function () { return 0; }), last: localISO() }
+    };
+    Object.keys(data).forEach(function (k) { novo[k] = data[k]; });
+    state.offers.unshift(novo);
+    toast('Oferta cadastrada! 🎉 O Radar já está de olho nela.');
+  }
+  save(); closeOfferModal(); renderCurrent(); updateAlertBadge();
+}
+
+/* ==========================================================================
+   DETALHE DA OFERTA — página estilo editor (Preview / Funil / Ofertas / Ativos / Links)
+   ========================================================================== */
+var detailOfferId = null;
+var detailTab = 'preview';
+var lastDetailId = null;
+var secObserver = null;
+
+function gotoOffer(id, ev) {
+  if (ev && ev.target && ev.target.closest && ev.target.closest('button, a, select, input')) return;
+  location.hash = 'oferta/' + id;
+}
+function bumpVar(o, slot) { o.vars = o.vars || {}; o.vars[slot] = (o.vars[slot] || 0) + 1; }
+function vIdx(o, slot, len) { return ((o.vars && o.vars[slot]) || 0) % len; }
+/* Texto de um slot: edição manual do usuário tem prioridade sobre a variação da IA */
+function slotTxt(o, slot, pool) {
+  if (o.copy && o.copy[slot] != null) return o.copy[slot];
+  return pool[vIdx(o, slot, pool.length)];
+}
+function currentList(o, sec) {
+  if (o.copyLists && o.copyLists[sec]) return o.copyLists[sec];
+  var pools = LIST_POOLS[sec](o);
+  return pools[vIdx(o, sec, pools.length)];
+}
+function materializeList(o, sec) {
+  o.copyLists = o.copyLists || {};
+  if (!o.copyLists[sec]) o.copyLists[sec] = currentList(o, sec).slice();
+}
+function discountPct(o) { return (o.oldPrice && o.oldPrice > o.price) ? Math.round((1 - o.price / o.oldPrice) * 100) : 0; }
+function shortTitle(o, n) { n = n || 40; return o.title.length > n ? o.title.slice(0, n) + '…' : o.title; }
+function trackedLink(o) { return 'https://ofg.li/' + o.id.slice(-6); }
+function utmLink(o) {
+  return o.url + (o.url.indexOf('?') > -1 ? '&' : '?') +
+    'utm_source=whatsapp&utm_medium=grupo&utm_campaign=' + (o.category || 'ofertas');
+}
+
+/* ----- pools de copy dos slots do Hero ----- */
+var SLOT_POOLS = {
+  hero_pill: function (o) {
+    return [
+      '🔥 ' + fmt(sumLast(o, 7)) + ' pessoas clicaram nessa oferta nos últimos 7 dias.',
+      '⚡ Preço verificado pelo Radar há menos de 24h — desconto real, não maquiado.',
+      '✅ Link testado e ativo — pode clicar sem medo.'
+    ];
+  },
+  hero_h1: function (o) {
+    var p = discountPct(o);
+    if (!p) return [
+      'Achadinho do dia: ' + shortTitle(o) + ' por ' + fmtBRL(o.price) + '.',
+      shortTitle(o) + ' pelo menor preço que já rastreamos.'
+    ];
+    return [
+      'De ' + fmtBRL(o.oldPrice) + ' por ' + fmtBRL(o.price) + ': ' + p + '% OFF de verdade.',
+      'Menor preço dos últimos 30 dias: ' + p + '% OFF em ' + shortTitle(o, 32) + '.',
+      'Corre que acaba: ' + shortTitle(o, 34) + ' com ' + p + '% OFF.'
+    ];
+  },
+  hero_lead: function (o) {
+    var cat = catById(o.category);
+    return [
+      'Você não precisa garimpar: o Radar já conferiu preço, estoque e reputação da loja. É o clássico achadinho que some rápido — ' + shortTitle(o) + ' saindo por ' + fmtBRL(o.price) + (o.oldPrice ? ' quando o preço normal é ' + fmtBRL(o.oldPrice) : '') + '. Se estava na sua lista de desejos, o momento é agora.',
+      'Promoção de verdade tem histórico conferido. Comparamos os últimos 30 dias de preço na ' + o.store + ' e este é o ponto mais baixo. Ofertas de ' + cat.name + ' com esse desconto costumam esgotar em poucas horas.'
+    ];
+  },
+  hero_cta: function (o) {
+    return ['QUERO ESSA OFERTA AGORA', 'PEGAR MEU DESCONTO', 'ABRIR OFERTA NA ' + o.store.toUpperCase()];
+  },
+  preco_parcelas: function (o) {
+    return [
+      'ou 12x de ' + fmtBRL(o.price / 12) + ' no cartão',
+      'ou 3x de ' + fmtBRL(o.price / 3) + ' sem juros',
+      'à vista no Pix, com acesso liberado na hora'
+    ];
+  },
+  preco_min: function (o) {
+    if (o.category === 'saude') return [
+      'Menos que um delivery de fim de semana — e dura o mês inteiro.',
+      'Menos que uma consulta avulsa, com acompanhamento de 30 dias.'
+    ];
+    return [
+      'Menos do que você perde deixando o desconto de hoje passar.',
+      'O preço de um lanche — pela economia de uma compra inteira.'
+    ];
+  },
+  preco_inv: function (o) {
+    var economy = (o.oldPrice && o.oldPrice > o.price) ? fmtBRL(o.oldPrice - o.price) : null;
+    if (o.category === 'saude') return [
+      'Você investe ' + fmtBRL(o.price) + ' e recebe um sistema completo de 30 dias — método, cardápio e suporte para emagrecer com constância.',
+      'Você investe ' + fmtBRL(o.price) + ' e para de gastar em tentativas soltas que não sustentam resultado.'
+    ];
+    return [
+      'Você investe ' + fmtBRL(o.price) + (economy ? ' e economiza ' + economy + ' em uma única compra verificada.' : ' em uma oferta verificada pelo Radar.'),
+      'Um clique no link rastreado e o desconto já está aplicado — sem cupom, sem pegadinha.'
+    ];
+  },
+  preco_scarcity: function (o) {
+    if (o.category === 'saude') return [
+      'Acesso limitado por vagas de suporte e revisão semanal.',
+      'Lote atual fecha ao esgotar as vagas — sem prorrogação.'
+    ];
+    return [
+      'Estoque limitado — quando o Radar detectar o fim, esta oferta sai do ar.',
+      'Oferta-relâmpago: o preço pode voltar ao normal a qualquer momento.'
+    ];
+  },
+  preco_cta: function (o) {
+    if (o.store === 'Hotmart') return ['COMPRAR ACESSO AGORA', 'QUERO COMEÇAR HOJE', 'GARANTIR MINHA VAGA'];
+    return ['GARANTIR OFERTA AGORA', 'COMPRAR COM DESCONTO', 'ABRIR NA ' + o.store.toUpperCase()];
+  }
+};
+
+function aiBtn(offerId, slot) {
+  return '<button class="ai-btn" data-tip="Gerar variação com IA" onclick="sparkleEl(this, \'' + offerId + '\', \'' + slot + '\')">✦</button>';
+}
+function sparkleEl(btn, offerId, slot) {
+  btn.classList.add('spin');
+  setTimeout(function () {
+    btn.classList.remove('spin');
+    var o = findOffer(offerId);
+    if (!o) return;
+    if (o.copy) delete o.copy[slot];
+    bumpVar(o, slot);
+    save();
+    var el = document.getElementById('slot-' + slot);
+    if (el) el.textContent = slotTxt(o, slot, SLOT_POOLS[slot](o));
+    toast('✨ Nova variação de copy gerada.');
+  }, 700);
+}
+function sparkleSec(btn, offerId, sec) {
+  btn.classList.add('spin');
+  setTimeout(function () {
+    btn.classList.remove('spin');
+    var o = findOffer(offerId);
+    if (!o) return;
+    if (sec === 'hero') {
+      ['hero_pill', 'hero_h1', 'hero_lead', 'hero_cta'].forEach(function (s) {
+        if (o.copy) delete o.copy[s];
+        bumpVar(o, s);
+      });
+    } else {
+      if (o.copyLists) delete o.copyLists[sec];
+      if (o.copy) {
+        Object.keys(o.copy).forEach(function (k) {
+          if (k.indexOf(sec + '_') === 0) delete o.copy[k];
+        });
+      }
+      if (sec === 'preco') {
+        delete o.stackList;
+        bumpVar(o, 'stack');
+      }
+      bumpVar(o, sec);
+    }
+    save();
+    var body = document.getElementById('secbody-' + sec);
+    if (body) body.innerHTML = SEC_BODIES[sec](o);
+    toast('✨ Nova variação de copy gerada.');
+  }, 700);
+}
+
+/* ----- edição inline: todo texto do preview é clicável e editável ----- */
+function edAttr(o, key) { return ' contenteditable="true" spellcheck="false" data-oid="' + o.id + '" data-edit="' + key + '"'; }
+function edListAttr(o, sec, i) { return ' contenteditable="true" spellcheck="false" data-oid="' + o.id + '" data-list="' + sec + '" data-idx="' + i + '"'; }
+function edH2(o, key, def) {
+  var txt = (o.copy && o.copy[key] != null) ? o.copy[key] : def;
+  return '<h3 class="sec-h2 editable"' + edAttr(o, key) + '>' + esc(txt) + '</h3>';
+}
+function editableRows(o, sec, opts) {
+  opts = opts || {};
+  var items = currentList(o, sec);
+  var rows = items.map(function (t, i) {
+    var inner;
+    if (opts.numbered) {
+      inner = '<div class="row" style="display:flex;gap:12px;align-items:flex-start;flex:1;">' +
+        '<span class="step-num" style="width:28px;height:28px;font-size:0.8rem;flex-shrink:0;">' + (i + 1) + '</span>' +
+        '<span class="editable" style="flex:1;padding-top:3px;"' + edListAttr(o, sec, i) + '>' + esc(t) + '</span></div>';
+    } else {
+      inner = '<div class="row editable" style="flex:1;"' + edListAttr(o, sec, i) + '>' + esc(t) + '</div>';
+    }
+    return '<div class="lrow">' + inner +
+      '<button class="mini-del" data-tip="Remover item" onclick="delListItem(\'' + o.id + '\', \'' + sec + '\', ' + i + ')">✕</button></div>';
+  }).join('');
+  return '<div class="list-rows">' + rows + '</div>' +
+    '<button class="add-row" onclick="addListItem(\'' + o.id + '\', \'' + sec + '\')">＋ Adicionar</button>';
+}
+function addListItem(oid, sec) {
+  var o = findOffer(oid);
+  if (!o) return;
+  materializeList(o, sec);
+  o.copyLists[sec].push('Novo item — clique para editar');
+  save();
+  var body = document.getElementById('secbody-' + sec);
+  if (body) body.innerHTML = SEC_BODIES[sec](o);
+  var rows = body ? body.querySelectorAll('[data-list="' + sec + '"]') : [];
+  var last = rows[rows.length - 1];
+  if (last) {
+    last.focus();
+    try { document.execCommand('selectAll', false, null); } catch (e) {}
+  }
+}
+function delListItem(oid, sec, idx) {
+  var o = findOffer(oid);
+  if (!o) return;
+  materializeList(o, sec);
+  o.copyLists[sec].splice(idx, 1);
+  save();
+  var body = document.getElementById('secbody-' + sec);
+  if (body) body.innerHTML = SEC_BODIES[sec](o);
+  toast('Item removido.', 'warn');
+}
+
+/* ----- pools de listas por seção (variações da IA; nicho de emagrecimento tem copy própria) ----- */
+var LIST_POOLS = {
+  promessa: function (o) {
+    var p = discountPct(o) || 10;
+    if (o.category === 'saude') return [
+      [
+        '...você já tentou dietas restritivas e desistiu na primeira semana.',
+        '...sua rotina é corrida e você não tem tempo de academia.',
+        '...você já gastou com fórmula milagrosa que não sustenta resultado.',
+        '...você quer método com passo a passo, não promessa vazia.',
+        '...você precisa de constância: o programa acompanha seu dia a dia.'
+      ],
+      [
+        '...você está começando do absoluto zero.',
+        '...você já emagreceu antes e recuperou tudo — aqui o foco é manutenção.',
+        '...com ' + p + '% OFF, o investimento cabe no orçamento do mês.',
+        '...você quer resultado sustentável, sem terrorismo nutricional.'
+      ]
+    ];
+    return [
+      [
+        '...você já caiu em "promoção" que era o preço de sempre — aqui o histórico foi conferido.',
+        '...você tem medo de comprar hoje e o preço cair amanhã: este é o menor dos últimos 30 dias.',
+        '...você só compra em loja com reputação — a ' + o.store + ' desta oferta é verificada.',
+        '...você está sem tempo de pesquisar: o link leva direto para o produto.',
+        '...você desconfia de link de grupo: este é rastreado e monitorado pelo Radar.'
+      ],
+      [
+        '...essa é sua primeira compra na ' + o.store + ' — o passo a passo abaixo te guia do clique à entrega.',
+        '...você perdeu essa oferta da última vez: agora o alerta avisa antes de esgotar.',
+        '...seu orçamento está apertado: com ' + p + '% OFF, a economia é real e conferida.',
+        '...você odeia arrependimento: veja as avaliações reais antes de finalizar.'
+      ]
+    ];
+  },
+  mecanismo: function (o) {
+    if (o.category === 'saude') return [
+      [
+        'Por que funciona: o programa combina reeducação alimentar com treinos curtos e progressivos — nada de dieta impossível de manter. Cada semana tem um objetivo claro, e o acompanhamento diário mantém a constância que as dietas por conta própria não conseguem.',
+        'E o preço promocional é real: o produtor libera lotes com desconto no lançamento de cada turma. O Radar monitora o link e marca a oferta como expirada quando o lote fecha.'
+      ],
+      [
+        'O mecanismo é a constância assistida: cardápio simples + treino que cabe na rotina + check-ins diários. Você não depende de motivação, depende de sistema.',
+        'Cada clique passa pelo link rastreado: você publica com a segurança de que ninguém cai em página fora do ar ou preço desatualizado.'
+      ]
+    ];
+    return [
+      [
+        'Por que esse desconto existe: lojas e produtores usam ofertas-relâmpago para girar estoque e ganhar destaque. O desconto é real — mas a janela é curta. O Radar reverifica este link várias vezes ao dia e marca a oferta como expirada no minuto em que o preço sobe.',
+        'Cada clique passa pelo link rastreado: você publica com a segurança de que ninguém do seu público vai cair em desconto maquiado ou página fora do ar.'
+      ],
+      [
+        'O mecanismo é simples: preço monitorado + validade vigiada + clique rastreado. Enquanto outras páginas divulgam e esquecem, aqui a oferta tem manutenção contínua: se o estoque acabar às 14h, às 14h o seu público para de receber esse link.',
+        'É isso que transforma um canal de ofertas comum em uma fonte confiável — e confiança é o que faz o mesmo público clicar de novo amanhã.'
+      ]
+    ];
+  },
+  publico: function (o) {
+    var cat = catById(o.category);
+    var p = discountPct(o) || 10;
+    if (o.category === 'saude') return [
+      [
+        'Para quem quer emagrecer com método, não com milagre.',
+        'Para quem tem rotina corrida e precisa de treino e cardápio práticos.',
+        'Para quem já tentou sozinho e sabe que acompanhamento faz diferença.',
+        'Para quem quer manter o resultado depois dos 30 dias.'
+      ],
+      [
+        'Para quem está começando do zero e precisa de um caminho claro.',
+        'Para quem cansou de dieta radical que dura uma semana.',
+        'Para quem quer investir ' + fmtBRL(o.price) + ' em saúde em vez de mais uma fórmula.'
+      ]
+    ];
+    return [
+      [
+        'Para quem acompanha o canal esperando ' + cat.name + ' baratear de verdade.',
+        'Para quem quer presentear bem sem estourar o orçamento.',
+        'Para quem só clica em link confiável — este é rastreado e monitorado.',
+        'Para quem decide rápido quando a matemática fecha.'
+      ],
+      [
+        'Para quem perdeu a última oferta-relâmpago e não quer repetir a dose.',
+        'Para quem pesquisa preço antes de comprar — a pesquisa já foi feita por você.',
+        'Para quem compra com propósito: ' + p + '% OFF em algo que já estava na lista.'
+      ]
+    ];
+  },
+  passos: function (o) {
+    if (o.store === 'Hotmart') return [
+      [
+        'Toque no botão verde — você vai direto para a página oficial do programa.',
+        'Garanta o preço promocional antes do lote fechar.',
+        'Acesso imediato: login e senha chegam no seu e-mail após a confirmação.',
+        'Comece hoje — o primeiro módulo é liberado em minutos.'
+      ]
+    ];
+    return [
+      [
+        'Toque no botão verde — você vai direto para a página do produto na ' + o.store + '.',
+        'Confira o preço: deve bater com o anunciado (o Radar verificou há pouco).',
+        'Aplique o cupom na finalização, se houver, e conclua a compra.',
+        'Ative as notificações do canal para pegar a próxima antes de esgotar.'
+      ],
+      [
+        'Clique no link rastreado e caia na página oficial da oferta.',
+        'Adicione ao carrinho e confira se o desconto foi aplicado.',
+        'Escolha o frete mais econômico antes de fechar o pedido.',
+        'Volte aqui e conta se chegou — sua avaliação ajuda o grupo.'
+      ]
+    ];
+  },
+  beneficios: function (o) {
+    var economy = (o.oldPrice && o.oldPrice > o.price) ? fmtBRL(o.oldPrice - o.price) : null;
+    if (o.category === 'saude') return [
+      [
+        '📋 Método passo a passo — sem adivinhar o que comer amanhã.',
+        '⏱️ Treinos e cardápios que cabem em rotina corrida.',
+        '🔁 Foco em manutenção: emagrecer e não recuperar.',
+        (economy ? '💸 ' + economy + ' de desconto no acesso completo.' : '💸 Desconto real no acesso completo.'),
+        '🛡️ Garantia de 7 dias da plataforma — risco zero para testar.'
+      ]
+    ];
+    return [
+      [
+        '💰 Economia real' + (economy ? ' de ' + economy : '') + ' sobre o preço monitorado.',
+        '🛡️ Loja com reputação verificada e garantia da própria plataforma.',
+        '🚚 Opções de frete econômico (ou grátis) na finalização.',
+        '📉 Menor preço registrado em 30 dias de monitoramento contínuo.'
+      ],
+      [
+        '⏱️ Zero tempo de garimpo: a pesquisa de preço já foi feita.',
+        '🔒 Link rastreado — sem redirecionamento suspeito, sem golpe.',
+        '🔔 Se expirar, o Radar tira do ar antes do seu público reclamar.',
+        (economy ? '💸 ' + economy + ' que ficam no seu bolso.' : '💸 Desconto conferido no histórico de preços.')
+      ]
+    ];
+  },
+  prova: function (o) {
+    if (o.category === 'saude') return [[
+      '“Perdi as medidas do jeans antigo em 5 semanas seguindo o cronograma. O grupo de suporte faz diferença.” — Patrícia N., aluna',
+      '“Já era meu 4º programa. Foi o primeiro que consegui manter depois do fim dos 30 dias.” — Marcos V., aluno',
+      '“O cardápio é comida de verdade, do mercado normal. Isso me fez continuar.” — Aline T., aluna'
+    ]];
+    return [[
+      '“Chegou antes do prazo e exatamente como anunciado. Valeu cada centavo.” — Camila R., compra verificada',
+      '“Peguei pelo link do grupo e o preço bateu certinho. Já é a terceira vez que compro por aqui.” — Diego M., compra verificada',
+      '“Quase paguei mais caro em outra loja. O alerta do canal me salvou de novo.” — Fernanda L., compra verificada'
+    ]];
+  }
+};
+
+/* ----- stack de valor da seção Preço e Oferta (itens estruturados: título, descrições, valor) ----- */
+function STACK_POOLS(o) {
+  if (o.category === 'saude') return [[
+    { t: 'Programa 30D completo', d1: 'Cardápios semanais e treinos guiados do dia 1 ao 30.', d2: 'Acesso imediato, direto no celular.', v: 'R$ 197' },
+    { t: 'Bônus 1: Guia Anti-Efeito Sanfona', d1: 'O plano de manutenção para depois dos 30 dias.', d2: 'Regras simples para não recuperar o peso.', v: 'R$ 47' },
+    { t: 'Bônus 2: Grupo de Suporte com Check-ins', d1: 'Revisão semanal de progresso com a comunidade.', d2: 'Constância assistida — ninguém fica para trás.', v: 'R$ 37' },
+    { t: 'Bônus 3: Lista de Compras Inteligente', d1: 'O mercado do mês planejado em 15 minutos.', d2: 'Comida de verdade, orçamento sob controle.', v: 'R$ 27' }
+  ]];
+  return [[
+    { t: shortTitle(o, 44), d1: 'Produto original, com nota fiscal e garantia da loja.', d2: 'Direto da ' + o.store + ', sem intermediários.', v: (o.oldPrice ? fmtBRL(o.oldPrice) : fmtBRL(o.price)) },
+    { t: 'Desconto-relâmpago aplicado', d1: 'Já embutido no link rastreado — sem cupom para digitar.', d2: '', v: 'No link' },
+    { t: 'Monitoramento do Radar', d1: 'Se o preço subir ou o estoque acabar, o link sai do ar na hora.', d2: 'Você nunca envia oferta morta para o grupo.', v: 'Incluso' },
+    { t: 'Compra protegida', d1: 'Reembolso garantido pela plataforma em caso de problema.', d2: '', v: 'Incluso' }
+  ]];
+}
+function currentStack(o) {
+  if (o.stackList) return o.stackList;
+  var pools = STACK_POOLS(o);
+  return pools[vIdx(o, 'stack', pools.length)];
+}
+function materializeStack(o) {
+  if (!o.stackList) {
+    o.stackList = currentStack(o).map(function (it) {
+      return { t: it.t, d1: it.d1, d2: it.d2, v: it.v };
+    });
+  }
+}
+function stkAttr(o, i, f) {
+  return ' contenteditable="true" spellcheck="false" data-oid="' + o.id + '" data-stk-idx="' + i + '" data-stk-field="' + f + '"';
+}
+function addStackItem(oid) {
+  var o = findOffer(oid);
+  if (!o) return;
+  materializeStack(o);
+  o.stackList.push({ t: 'Novo bônus — clique para editar', d1: 'Descreva o que a pessoa recebe.', d2: '', v: 'R$ 0' });
+  save();
+  var body = document.getElementById('secbody-preco');
+  if (body) body.innerHTML = SEC_BODIES.preco(o);
+  var titles = body ? body.querySelectorAll('[data-stk-field="t"]') : [];
+  var last = titles[titles.length - 1];
+  if (last) {
+    last.focus();
+    try { document.execCommand('selectAll', false, null); } catch (e) {}
+  }
+}
+function delStackItem(oid, idx) {
+  var o = findOffer(oid);
+  if (!o) return;
+  materializeStack(o);
+  o.stackList.splice(idx, 1);
+  save();
+  var body = document.getElementById('secbody-preco');
+  if (body) body.innerHTML = SEC_BODIES.preco(o);
+  toast('Item removido.', 'warn');
+}
+
+/* ----- corpos das seções (copy gerada a partir da oferta; tudo editável) ----- */
+function bodyHero(o) {
+  var cat = catById(o.category);
+  return '' +
+    '<div class="slot-row"><div class="slot-content"><span class="pill-proof editable" id="slot-hero_pill"' + edAttr(o, 'hero_pill') + '>' + esc(slotTxt(o, 'hero_pill', SLOT_POOLS.hero_pill(o))) + '</span></div>' + aiBtn(o.id, 'hero_pill') + '</div>' +
+    '<div class="slot-row"><div class="slot-content"><h2 class="sec-h1 editable" id="slot-hero_h1"' + edAttr(o, 'hero_h1') + '>' + esc(slotTxt(o, 'hero_h1', SLOT_POOLS.hero_h1(o))) + '</h2></div>' + aiBtn(o.id, 'hero_h1') + '</div>' +
+    '<div class="sec-neon editable" data-tip="Clique para editar o título da oferta"' + edAttr(o, 'title') + '>' + esc(o.title) + '</div>' +
+    '<div class="sec-meta" style="margin:6px 0 16px;">Na ' + esc(o.store) + ' · ' + esc(cat.emoji + ' ' + cat.name) + ' · por tempo limitado</div>' +
+    '<div class="slot-row"><div class="slot-content"><div class="sec-lead editable" id="slot-hero_lead"' + edAttr(o, 'hero_lead') + '>' + esc(slotTxt(o, 'hero_lead', SLOT_POOLS.hero_lead(o))) + '</div></div>' + aiBtn(o.id, 'hero_lead') + '</div>' +
+    '<div class="slot-row"><div class="slot-content"><button class="btn btn-primary" id="slot-hero_cta" style="padding:16px 30px;font-size:0.95rem;font-weight:800;letter-spacing:0.02em;" onclick="openOffer(\'' + o.id + '\')">' + esc(slotTxt(o, 'hero_cta', SLOT_POOLS.hero_cta(o))) + '</button></div>' + aiBtn(o.id, 'hero_cta') + '</div>';
+}
+function bodyPromessa(o) {
+  return edH2(o, 'promessa_h2', 'Essa oferta vale a pena inclusive se...') + editableRows(o, 'promessa');
+}
+function bodyMecanismo(o) {
+  return edH2(o, 'mecanismo_h2', 'Radar de Consistência e Conversão') + editableRows(o, 'mecanismo');
+}
+function bodyPublico(o) {
+  return edH2(o, 'publico_h2', 'Para quem é essa oferta') + editableRows(o, 'publico');
+}
+function bodyPassos(o) {
+  return edH2(o, 'passos_h2', 'Como aproveitar em 4 passos') + editableRows(o, 'passos', { numbered: true });
+}
+function bodyBeneficios(o) {
+  return edH2(o, 'beneficios_h2', 'Benefícios diretos') + editableRows(o, 'beneficios');
+}
+function bodyProva(o) {
+  return edH2(o, 'prova_h2', 'O que dizem os compradores') + editableRows(o, 'prova') +
+    '<div class="sec-meta" style="font-size:0.72rem;margin-top:10px;">Avaliações ilustrativas — substitua pelas avaliações reais da página do produto.</div>';
+}
+function bodyPreco(o) {
+  var p = discountPct(o);
+  var stack = currentStack(o);
+
+  var total = 0;
+  stack.forEach(function (it) {
+    var m = /([\d.,]+)/.exec(it.v || '');
+    if (m) total += parseFloat(m[1].replace(/\./g, '').replace(',', '.')) || 0;
+  });
+
+  var stackHtml = stack.map(function (it, i) {
+    return '<div class="lrow"><div class="stack-card" style="flex:1;">' +
+      '<div class="stack-title editable"' + stkAttr(o, i, 't') + '>' + esc(it.t) + '</div>' +
+      '<div class="stack-desc editable"' + stkAttr(o, i, 'd1') + '>' + esc(it.d1 || '') + '</div>' +
+      '<div class="stack-desc editable"' + stkAttr(o, i, 'd2') + '>' + esc(it.d2 || '') + '</div>' +
+      '<div class="stack-value editable"' + stkAttr(o, i, 'v') + '>' + esc(it.v || '') + '</div>' +
+    '</div><button class="mini-del" data-tip="Remover item" onclick="delStackItem(\'' + o.id + '\', ' + i + ')">✕</button></div>';
+  }).join('');
+
+  return '' +
+    /* ancoragem: preço antigo riscado + preço atual + parcelas */
+    '<div class="price-center">' +
+      (o.oldPrice ? '<div class="sec-meta" style="text-decoration:line-through;">De ' + fmtBRL(o.oldPrice) + '</div>' : '') +
+      '<div class="price-big">' + fmtBRL(o.price) + (p ? ' <span class="badge badge-live" style="vertical-align:middle;">' + p + '% OFF</span>' : '') + '</div>' +
+      '<div class="slot-row" style="justify-content:center;margin-bottom:0;"><div class="slot-content" style="flex:0 1 auto;"><div class="sec-meta editable" id="slot-preco_parcelas"' + edAttr(o, 'preco_parcelas') + '>' + esc(slotTxt(o, 'preco_parcelas', SLOT_POOLS.preco_parcelas(o))) + '</div></div>' + aiBtn(o.id, 'preco_parcelas') + '</div>' +
+    '</div>' +
+    /* minimização do preço + frase de investimento */
+    '<div class="sec-meta editable" style="margin:14px 0 6px;"' + edAttr(o, 'preco_min') + '>' + esc(slotTxt(o, 'preco_min', SLOT_POOLS.preco_min(o))) + '</div>' +
+    '<div class="slot-row"><div class="slot-content"><div class="sec-p editable" style="font-weight:600;color:var(--text);margin-bottom:0;" id="slot-preco_inv"' + edAttr(o, 'preco_inv') + '>' + esc(slotTxt(o, 'preco_inv', SLOT_POOLS.preco_inv(o))) + '</div></div>' + aiBtn(o.id, 'preco_inv') + '</div>' +
+    /* stack de valor com âncora de preço por item */
+    '<div class="list-rows" style="margin-top:14px;">' + stackHtml + '</div>' +
+    '<button class="add-row" onclick="addStackItem(\'' + o.id + '\')">＋ Adicionar</button>' +
+    (total > o.price ? '<div class="sec-meta" style="text-align:center;margin-top:12px;">Somando tudo: <s>' + fmtBRL(total) + '</s> · hoje você paga <b style="color:var(--accent);">' + fmtBRL(o.price) + '</b></div>' : '') +
+    /* escassez */
+    '<div class="slot-row" style="margin-top:14px;"><div class="slot-content"><div class="scarcity-bar editable" id="slot-preco_scarcity"' + edAttr(o, 'preco_scarcity') + '>' + esc(slotTxt(o, 'preco_scarcity', SLOT_POOLS.preco_scarcity(o))) + '</div></div>' + aiBtn(o.id, 'preco_scarcity') + '</div>' +
+    /* CTA gigante centralizado */
+    '<div class="slot-row" style="justify-content:center;margin-top:18px;"><div class="slot-content" style="flex:0 1 auto;text-align:center;"><button class="btn btn-primary" id="slot-preco_cta" style="padding:18px 40px;font-size:1.05rem;font-weight:800;letter-spacing:0.02em;" onclick="openOffer(\'' + o.id + '\')">' + esc(slotTxt(o, 'preco_cta', SLOT_POOLS.preco_cta(o))) + '</button></div>' + aiBtn(o.id, 'preco_cta') + '</div>' +
+    '<div class="sec-meta" style="text-align:center;margin-top:12px;font-size:0.72rem;">Link rastreado e monitorado pelo Radar · preço sujeito a alteração pela loja</div>';
+}
+function bodyFechamento(o) {
+  var st = STATUS_META[statusOf(o)];
+  var def = o.category === 'saude'
+    ? 'O lote promocional fecha sem aviso — e a diferença entre "vou começar segunda" e começar hoje é exatamente o resultado que você quer ver no espelho. Garanta o acesso com desconto e, se o preço mudar, o Radar marca a oferta como expirada na hora.'
+    : 'Oferta com esse desconto na ' + o.store + ' raramente passa do dia. Se fez sentido para você, garanta agora — e se o preço mudar, o Radar marca a oferta como expirada na hora, para ninguém do seu público cair em link morto.';
+  var txt = (o.copy && o.copy.fechamento_p != null) ? o.copy.fechamento_p : def;
+  return '<p class="sec-p editable"' + edAttr(o, 'fechamento_p') + '>' + esc(txt) + '</p>' +
+    '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:16px;">' +
+      '<button class="btn btn-primary" style="padding:14px 28px;font-weight:800;" onclick="openOffer(\'' + o.id + '\')">GARANTIR MINHA OFERTA</button>' +
+      '<span class="badge ' + st.cls + '">' + st.label + '</span>' +
+      '<span class="sec-meta">Status verificado pelo Radar</span>' +
+    '</div>';
+}
+
+var SEC_BODIES = {
+  hero: bodyHero, promessa: bodyPromessa, mecanismo: bodyMecanismo,
+  publico: bodyPublico, passos: bodyPassos, beneficios: bodyBeneficios,
+  prova: bodyProva, preco: bodyPreco, fechamento: bodyFechamento
+};
+var SEC_LIST = [
+  { id: 'hero', chip: 'HERO', label: 'Hero' },
+  { id: 'promessa', chip: 'PROMESSA', label: 'Promessa' },
+  { id: 'mecanismo', chip: 'MECANISMO', label: 'Mecanismo' },
+  { id: 'publico', chip: 'PÚBLICO IDEAL', label: 'Público Ideal' },
+  { id: 'passos', chip: 'COMO FUNCIONA', label: 'Como Funciona' },
+  { id: 'beneficios', chip: 'BENEFÍCIOS', label: 'Benefícios' },
+  { id: 'prova', chip: 'PROVA SOCIAL', label: 'Prova Social' },
+  { id: 'preco', chip: 'PREÇO E OFERTA', label: 'Preço e Oferta' },
+  { id: 'fechamento', chip: 'FECHAMENTO', label: 'Fechamento' }
+];
+
+/* ----- textos prontos (aba Ativos) ----- */
+function assetWhats(o) {
+  var p = discountPct(o);
+  return o.emoji + ' *' + o.title + '*\n\n' +
+    (o.oldPrice ? '❌ De: ' + fmtBRL(o.oldPrice) + '\n' : '') +
+    '✅ Por: ' + fmtBRL(o.price) + (p ? ' (' + p + '% OFF)' : '') + '\n\n' +
+    '🛒 Compre aqui: ' + trackedLink(o) + '\n\n' +
+    '⚠️ Oferta por tempo limitado — sujeita a alteração pela loja.';
+}
+function assetStory(o) {
+  var p = discountPct(o);
+  return o.emoji + ' ACHADINHO DO DIA\n' + shortTitle(o, 50) + '\n' +
+    (p ? p + '% OFF — ' : '') + 'só ' + fmtBRL(o.price) + ' na ' + o.store + '!\n' +
+    '👆 Arrasta pra cima / link na bio';
+}
+function assetTelegram(o) {
+  var p = discountPct(o);
+  return '🚨 OFERTA VERIFICADA 🚨\n\n' + o.emoji + ' ' + o.title + '\n\n' +
+    '💵 ' + fmtBRL(o.price) + (o.oldPrice ? ' (antes ' + fmtBRL(o.oldPrice) + ')' : '') + (p ? '\n📉 ' + p + '% de desconto real' : '') + '\n' +
+    '🏬 ' + o.store + '\n\n👉 ' + trackedLink(o) + '\n\n' +
+    'Link monitorado: se expirar, avisamos aqui no canal.';
+}
+
+/* ----- render da página de detalhe ----- */
+function detailBodyHtml(o) {
+  if (detailTab === 'preview') {
+    return '<div class="detail-layout">' +
+      '<div class="sec-nav" id="secNav"><span class="nav-label">Seções</span>' +
+        SEC_LIST.map(function (s, i) {
+          return '<button' + (i === 0 ? ' class="active"' : '') + ' data-sec="' + s.id + '" onclick="scrollToSec(\'' + s.id + '\')">' + s.label + '</button>';
+        }).join('') +
+      '</div>' +
+      '<div class="sec-cards">' +
+        SEC_LIST.map(function (s) {
+          return '<div class="sec-card" id="sec-' + s.id + '" data-secid="' + s.id + '">' +
+            '<div class="sec-card-top"><span class="sec-chip">' + s.chip + '</span>' +
+            '<button class="ai-btn" data-tip="Gerar variação com IA" onclick="sparkleSec(this, \'' + o.id + '\', \'' + s.id + '\')">✦</button></div>' +
+            '<div id="secbody-' + s.id + '">' + SEC_BODIES[s.id](o) + '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>' +
+    '</div>';
+  }
+  if (detailTab === 'funil') {
+    var c30 = sumLast(o, 30);
+    var imp = c30 * 9;
+    var conv = Math.round(c30 * 0.04);
+    var comm = conv * o.price * 0.08;
+    return '<div class="stats-grid">' +
+      statTile('Impressões estimadas', fmt(imp), 'alcance estimado das postagens', '<circle cx="12" cy="12" r="3"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>') +
+      statTile('Cliques no link', fmt(c30), 'registrados nos últimos 30 dias', '<path d="M9 9l10.5 3.5L15 15l-2.5 4.5z"/><path d="M3.6 3.6 8 8"/>') +
+      statTile('Conversões estimadas', fmt(conv), 'taxa média de 4% do nicho', '<path d="M20 6 9 17l-5-5"/>') +
+      statTile('Comissão estimada', fmtBRL(comm), 'comissão média de 8% sobre o preço', '<path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>') +
+    '</div>' +
+    '<div class="card"><h3>Funil da oferta</h3><p class="card-sub">Últimos 30 dias — impressões e conversões são estimativas com taxas médias do nicho de achadinhos</p><div class="hbars" id="funnelBars"></div></div>';
+  }
+  if (detailTab === 'relacionadas') {
+    var cat = catById(o.category);
+    var rel = state.offers.filter(function (x) { return x.category === o.category && x.id !== o.id; });
+    return '<div class="card"><h3>Ofertas relacionadas</h3><p class="card-sub">Mesma categoria: ' + esc(cat.emoji + ' ' + cat.name) + '</p>' +
+      '<div class="offer-list">' + (rel.length
+        ? rel.map(function (r) { return offerRow(r, true); }).join('')
+        : emptyState('Nada por aqui', 'Cadastre mais ofertas nessa categoria.')) +
+      '</div></div>';
+  }
+  if (detailTab === 'ativos') {
+    function assetCard(title, sub, txt) {
+      return '<div class="card" style="margin-bottom:14px;"><h3>' + title + '</h3><p class="card-sub">' + sub + '</p>' +
+        '<div class="asset-box">' + esc(txt) + '</div>' +
+        '<button class="btn btn-sm" data-copy="' + esc(txt) + '">📋 Copiar texto</button></div>';
+    }
+    return assetCard('Post para WhatsApp', 'Pronto para colar no grupo', assetWhats(o)) +
+      assetCard('Story / Legenda Instagram', 'Curto e direto para stories', assetStory(o)) +
+      assetCard('Post para Telegram', 'Formato de canal de cupons', assetTelegram(o));
+  }
+  if (detailTab === 'links') {
+    function linkRow(label, sub, url) {
+      return '<div class="link-row"><div class="link-info"><b>' + label + '</b><span>' + esc(url) + '</span>' +
+        (sub ? '<span style="display:block;margin-top:2px;font-size:0.7rem;">' + sub + '</span>' : '') + '</div>' +
+        '<button class="btn btn-sm" data-copy="' + esc(url) + '">📋 Copiar</button></div>';
+    }
+    return '<div class="card"><h3>Links da oferta</h3><p class="card-sub">Use sempre o link rastreado nas postagens — é ele que alimenta o relatório de cliques.</p>' +
+      linkRow('🔗 Link rastreado (recomendado)', 'Cliques contabilizados no painel + monitorado pelo Radar', trackedLink(o)) +
+      linkRow('🌐 Link original', '', o.url) +
+      linkRow('📊 Link com UTM', 'Para cruzar com o Google Analytics / relatórios da loja', utmLink(o)) +
+    '</div>';
+  }
+  return '';
+}
+
+function renderOfertaDetail() {
+  var host = document.getElementById('view-oferta');
+  var o = findOffer(detailOfferId);
+  if (!o) { location.hash = 'ofertas'; return; }
+  if (lastDetailId !== o.id) { detailTab = 'preview'; lastDetailId = o.id; }
+  var st = STATUS_META[statusOf(o)];
+  var cat = catById(o.category);
+  var tabs = [
+    { id: 'preview', ico: '📄', label: 'Preview' },
+    { id: 'funil', ico: '🔻', label: 'Funil' },
+    { id: 'relacionadas', ico: '🛍️', label: 'Ofertas' },
+    { id: 'ativos', ico: '🖼️', label: 'Ativos' },
+    { id: 'links', ico: '🔗', label: 'Links' }
+  ];
+
+  host.innerHTML =
+    '<div class="breadcrumb"><a href="#ofertas">Minhas Ofertas</a><span>›</span><b>' + esc(shortTitle(o, 52)) + '</b></div>' +
+    '<div class="detail-head">' +
+      '<span class="detail-thumb">' + esc(o.emoji) + '</span>' +
+      '<div class="detail-info">' +
+        '<h1>' + esc(o.title) + ' <span class="badge ' + st.cls + '">' + st.label + '</span></h1>' +
+        '<p>' + esc(cat.emoji + ' ' + cat.name) + ' · ' + esc(o.store) + ' · ' + fmtBRL(o.price) +
+          (o.oldPrice ? ' <s>' + fmtBRL(o.oldPrice) + '</s>' : '') +
+          ' · ' + fmt(sumLast(o, 30)) + ' cliques em 30 dias</p>' +
+      '</div>' +
+      '<div class="detail-actions">' +
+        '<button class="icon-btn" data-tip="Editar oferta" onclick="openOfferModal(\'' + o.id + '\')">✏️</button>' +
+        '<button class="icon-btn danger" data-tip="Excluir oferta" onclick="deleteOffer(\'' + o.id + '\')">🗑</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="detail-tabs">' + tabs.map(function (t) {
+      return '<button class="tab-btn' + (detailTab === t.id ? ' active' : '') + '" onclick="setDetailTab(\'' + t.id + '\')"><span class="tab-ico">' + t.ico + '</span>' + t.label + '</button>';
+    }).join('') + '</div>' +
+    '<div id="detailBody">' + detailBodyHtml(o) + '</div>';
+
+  if (detailTab === 'preview') setupSecObserver();
+  if (detailTab === 'funil') {
+    var c30 = sumLast(o, 30);
+    renderHBars('funnelBars', [
+      { emoji: '👀', label: 'Impressões estimadas', value: c30 * 9 },
+      { emoji: '👆', label: 'Cliques no link', value: c30 },
+      { emoji: '🛒', label: 'Conversões estimadas', value: Math.round(c30 * 0.04) }
+    ]);
+  }
+}
+function setDetailTab(t) {
+  detailTab = t;
+  renderOfertaDetail();
+  window.scrollTo(0, 0);
+}
+function scrollToSec(id) {
+  var el = document.getElementById('sec-' + id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function setupSecObserver() {
+  if (secObserver) secObserver.disconnect();
+  secObserver = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (!en.isIntersecting) return;
+      var id = en.target.getAttribute('data-secid');
+      document.querySelectorAll('#secNav button').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-sec') === id);
+      });
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  document.querySelectorAll('.sec-card').forEach(function (c) { secObserver.observe(c); });
+}
+
+/* ==========================================================================
+   ROUTER + infraestrutura de UI
+   ========================================================================== */
+var VIEWS = {
+  dashboard: renderDashboard,
+  ofertas: renderOfertas,
+  categorias: renderCategorias,
+  alertas: renderAlertas,
+  relatorios: renderRelatorios,
+  config: renderConfig,
+  oferta: renderOfertaDetail
+};
+var currentView = 'dashboard';
+
+function route() {
+  var h = (location.hash || '#dashboard').replace('#', '');
+  var navKey;
+  if (h.indexOf('oferta/') === 0) {
+    detailOfferId = h.slice(7);
+    currentView = 'oferta';
+    navKey = 'ofertas';
+  } else {
+    if (!VIEWS[h] || h === 'oferta') h = 'dashboard';
+    currentView = h;
+    navKey = h;
+  }
+  document.querySelectorAll('.view').forEach(function (v) { v.classList.remove('active'); });
+  document.getElementById('view-' + currentView).classList.add('active');
+  document.querySelectorAll('.side-nav a').forEach(function (a) {
+    a.classList.toggle('active', a.getAttribute('data-view') === navKey);
+  });
+  VIEWS[currentView]();
+  document.getElementById('sidebar').classList.remove('open');
+  window.scrollTo(0, 0);
+}
+function renderCurrent() { VIEWS[currentView](); updateAlertBadge(); }
+
+function updateAlertBadge() {
+  var al = alertOffers();
+  var n = al.dead.length + al.warn.length;
+  var b = document.getElementById('alertBadge');
+  b.textContent = n;
+  b.classList.toggle('zero', n === 0);
+  document.getElementById('radarStatusTxt').textContent =
+    n ? n + ' alerta(s) pendente(s)' : fmt(state.offers.length) + ' links saudáveis';
+}
+
+function toast(msg, type) {
+  var el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(function () {
+    el.style.opacity = '0';
+    el.style.transition = 'opacity 0.3s';
+    setTimeout(function () { el.remove(); }, 320);
+  }, 3200);
+}
+
+/* Copiar para a área de transferência via [data-copy] */
+function copyToClip(txt, okMsg) {
+  var done = function () { toast(okMsg || 'Copiado! 📋'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done, function () { toast('Não foi possível copiar.', 'error'); });
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch (e) { toast('Não foi possível copiar.', 'error'); }
+    document.body.removeChild(ta);
+  }
+}
+document.addEventListener('click', function (e) {
+  var b = e.target.closest ? e.target.closest('[data-copy]') : null;
+  if (b) copyToClip(b.getAttribute('data-copy'));
+});
+
+/* Tooltip global para [data-tip] */
+var hoverTip = document.getElementById('hoverTip');
+document.addEventListener('mouseover', function (e) {
+  var t = e.target.closest ? e.target.closest('[data-tip]') : null;
+  if (t) { hoverTip.textContent = t.getAttribute('data-tip'); hoverTip.style.opacity = 1; }
+  else hoverTip.style.opacity = 0;
+});
+document.addEventListener('mousemove', function (e) {
+  if (hoverTip.style.opacity === '1') {
+    var x = Math.min(e.clientX + 14, window.innerWidth - hoverTip.offsetWidth - 10);
+    hoverTip.style.left = x + 'px';
+    hoverTip.style.top = (e.clientY + 16) + 'px';
+  }
+});
+
+/* Eventos */
+window.addEventListener('hashchange', route);
+document.getElementById('btnNewOffer').addEventListener('click', function () { openOfferModal(); });
+document.getElementById('hamburger').addEventListener('click', function () {
+  document.getElementById('sidebar').classList.toggle('open');
+});
+document.getElementById('offerModal').addEventListener('click', function (e) {
+  if (e.target === this) closeOfferModal();
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') closeOfferModal();
+});
+
+/* ----- edição inline: salvar ao sair do campo; Enter confirma ----- */
+document.addEventListener('focusout', function (e) {
+  var el = e.target;
+  if (!el || !el.getAttribute) return;
+  var oid = el.getAttribute('data-oid');
+  if (!oid) return;
+  var o = findOffer(oid);
+  if (!o) return;
+  var txt = (el.textContent || '').replace(/\s+/g, ' ').trim();
+  var slot = el.getAttribute('data-edit');
+  var sec = el.getAttribute('data-list');
+  var stkField = el.getAttribute('data-stk-field');
+  if (stkField) {
+    var sIdx = parseInt(el.getAttribute('data-stk-idx'), 10);
+    materializeStack(o);
+    if (o.stackList[sIdx] && o.stackList[sIdx][stkField] !== txt) {
+      o.stackList[sIdx][stkField] = txt;
+      save();
+      toast('💾 Texto salvo.');
+    }
+    return;
+  }
+  if (slot === 'title') {
+    if (txt && txt !== o.title) {
+      o.title = txt;
+      save();
+      toast('💾 Título da oferta atualizado.');
+      if (currentView === 'oferta') renderOfertaDetail();
+    } else {
+      el.textContent = o.title;
+    }
+  } else if (slot) {
+    o.copy = o.copy || {};
+    if (o.copy[slot] !== txt) {
+      o.copy[slot] = txt;
+      save();
+      toast('💾 Texto salvo.');
+    }
+  } else if (sec) {
+    var idx = parseInt(el.getAttribute('data-idx'), 10);
+    materializeList(o, sec);
+    if (o.copyLists[sec][idx] !== txt) {
+      o.copyLists[sec][idx] = txt;
+      save();
+      toast('💾 Texto salvo.');
+    }
+  }
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter') return;
+  var t = e.target;
+  if (t && t.getAttribute && (t.getAttribute('data-edit') || t.getAttribute('data-list') || t.getAttribute('data-stk-field'))) {
+    e.preventDefault();
+    t.blur();
+  }
+});
+['searchInput', 'filterCat', 'filterStatus', 'sortBy'].forEach(function (id) {
+  document.getElementById(id).addEventListener('input', renderOfertas);
+});
+document.getElementById('reportCat').addEventListener('input', renderRelatorios);
+document.querySelectorAll('#periodSeg button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('#periodSeg button').forEach(function (x) { x.classList.remove('active'); });
+    b.classList.add('active');
+    reportDays = parseInt(b.getAttribute('data-days'), 10);
+    renderRelatorios();
+  });
+});
+window.addEventListener('resize', (function () {
+  var t;
+  return function () { clearTimeout(t); t = setTimeout(renderCurrent, 200); };
+})());
+
+/* Boot */
+load();
+fillCatSelects();
+applySettings();
+updateAlertBadge();
+route();
+</script>
+
+</body>
+</html>
