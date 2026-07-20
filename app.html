@@ -43,7 +43,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; font-size: 14.5px; }
+html { scroll-behavior: smooth; }
 body {
   font-family: var(--font);
   background: var(--bg);
@@ -207,7 +207,7 @@ button { font-family: var(--font); }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 .view-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
-.view-head h1 { font-size: clamp(1.35rem, 2.1vw, 1.75rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; }
+.view-head h1 { font-size: clamp(1.6rem, 3vw, 2.3rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.12; }
 .view-head p { color: var(--text-soft); font-size: 0.92rem; margin-top: 4px; letter-spacing: 0.002em; }
 
 /* ============================ COMPONENTES ============================ */
@@ -294,7 +294,7 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 }
 .stat-tile .stat-label svg { width: 14px; height: 14px; color: var(--accent); }
 .stat-tile .stat-value {
-  font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.08;
+  font-size: 2.15rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1.05;
   font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "ss01" 1;
 }
 .stat-tile .stat-delta { font-size: 0.75rem; margin-top: 6px; color: var(--text-mute); }
@@ -564,7 +564,7 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
   display: grid; place-items: center; font-size: 1.7rem; flex-shrink: 0;
 }
 .detail-info { flex: 1; min-width: 0; }
-.detail-info h1 { font-size: 1.12rem; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; line-height: 1.3; }
+.detail-info h1 { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; line-height: 1.3; }
 .detail-info p { color: var(--text-soft); font-size: 0.86rem; margin-top: 4px; max-width: 780px; }
 .detail-info p s { color: var(--text-mute); }
 .detail-actions { display: flex; gap: 8px; flex-shrink: 0; }
@@ -631,8 +631,8 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
   color: var(--accent); font-size: 0.78rem; font-weight: 700;
   padding: 7px 14px; border-radius: 8px;
 }
-.sec-h1 { font-size: clamp(1.2rem, 2.4vw, 1.6rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.22; }
-.sec-h2 { font-size: clamp(1.05rem, 2vw, 1.3rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; }
+.sec-h1 { font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+.sec-h2 { font-size: clamp(1.15rem, 2.4vw, 1.55rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; }
 .sec-neon { color: var(--accent); font-weight: 800; font-size: 1.12rem; }
 .sec-meta { color: var(--text-mute); font-size: 0.85rem; }
 .sec-lead {
@@ -713,7 +713,7 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 /* ----- preço e oferta: ancoragem + stack de valor + escassez ----- */
 .price-center { text-align: center; padding: 4px 0 10px; }
 .price-big {
-  font-size: clamp(1.9rem, 4.2vw, 2.4rem);
+  font-size: clamp(2.2rem, 5vw, 2.8rem);
   font-weight: 800; letter-spacing: -0.03em;
   color: var(--accent); line-height: 1.15; margin: 2px 0 6px;
 }
@@ -3049,17 +3049,18 @@ function renderFunnelChart(containerId, stages) {
   stages.forEach(function (s, i) {
     var share = maxV > 0 ? (s.value / maxV * 100) : 0;
     var shareTxt = (share >= 10 ? Math.round(share).toString() : share.toFixed(1).replace('.', ',')) + '%';
-    headers += '<text x="' + cx(i) + '" y="' + headerY + '" text-anchor="middle" font-size="13" font-weight="700" fill="#AEB4C0">' + esc(s.label) + '</text>';
-    pcts += '<text x="' + cx(i) + '" y="' + (yc + 6) + '" text-anchor="middle" font-size="18" font-weight="800" fill="#ffffff">' + shareTxt + '</text>';
-    values += '<text x="' + cx(i) + '" y="' + footerY + '" text-anchor="middle" font-size="13" font-weight="700" fill="#8A90A0">' + fmt(s.value) + '</text>';
+    var labelFill = hh(s.value) >= 18 ? '#10240A' : '#DDE3EA';
+    headers += '<text x="' + cx(i) + '" y="' + headerY + '" text-anchor="middle" font-size="15" font-weight="700" fill="#B5B5B5">' + esc(s.label) + '</text>';
+    pcts += '<text x="' + cx(i) + '" y="' + (yc + 7) + '" text-anchor="middle" font-size="22" font-weight="800" fill="' + labelFill + '">' + shareTxt + '</text>';
+    values += '<text x="' + cx(i) + '" y="' + footerY + '" text-anchor="middle" font-size="15" font-weight="700" fill="#7A7A7A">' + fmt(s.value) + '</text>';
   });
 
   el.innerHTML =
     '<svg class="chart-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Funil de conversão">' +
       '<defs><linearGradient id="fgrad-' + containerId + '" x1="0" y1="0" x2="1" y2="0">' +
-        '<stop offset="0%" stop-color="#7B5CFF"/>' +
-        '<stop offset="55%" stop-color="#B14BC6"/>' +
-        '<stop offset="100%" stop-color="#E43E7C"/>' +
+        '<stop offset="0%" stop-color="#5F961B"/>' +
+        '<stop offset="55%" stop-color="#93E22B"/>' +
+        '<stop offset="100%" stop-color="#B4FF39"/>' +
       '</linearGradient></defs>' +
       dividers + headers +
       '<path d="' + d + '" fill="url(#fgrad-' + containerId + ')" opacity="0.95"/>' +
