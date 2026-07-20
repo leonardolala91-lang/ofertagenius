@@ -774,6 +774,39 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 .link-url { font-size: 0.8rem; color: var(--text-mute); word-break: break-all; padding: 2px 4px; }
 .link-url:empty::before { content: 'Cole o link aqui…'; color: var(--text-mute); opacity: 0.5; }
 
+/* ----- gráfico de funil (estilo UTMify) ----- */
+.funnel { display: flex; flex-direction: column; }
+.funnel-stage { padding: 4px 0; }
+.funnel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 9px; }
+.funnel-ico {
+  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
+  background: var(--accent-dim); display: grid; place-items: center; font-size: 1rem;
+}
+.funnel-name { font-weight: 600; font-size: 0.92rem; flex: 1; min-width: 0; }
+.funnel-count { font-weight: 800; font-size: 1.05rem; letter-spacing: -0.02em; }
+.funnel-share {
+  font-size: 0.72rem; font-weight: 700; color: var(--text-mute);
+  min-width: 54px; text-align: right;
+}
+.funnel-bar-track {
+  height: 30px; background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border-soft); border-radius: 8px; overflow: hidden;
+}
+.funnel-bar {
+  height: 100%; border-radius: 7px; min-width: 6px;
+  background: linear-gradient(90deg, #7ecc1f 0%, var(--accent) 100%);
+  box-shadow: 0 0 16px var(--accent-glow);
+  transition: width 0.6s cubic-bezier(.2,.7,.2,1);
+}
+.funnel-drop {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0 10px 46px; color: var(--text-mute); font-size: 0.78rem;
+}
+.funnel-drop .drop-line { flex: 1; height: 1px; background: var(--border-soft); }
+.funnel-drop .conv { color: var(--accent); font-weight: 800; }
+.funnel-drop .lost { color: var(--text-mute); }
+.funnel-drop .lost b { color: #E8785B; font-weight: 700; }
+
 /* ============================ RESPONSIVO ============================ */
 @media (max-width: 1080px) {
   .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -1306,6 +1339,14 @@ function sumCheckouts(o, n) { return sumMetric(o, 'checkouts', n); }
 function sumSales(o, n) { return sumMetric(o, 'sales', n); }
 function sumRevenue(o, n) { return sumMetric(o, 'revenue', n); }
 function totalMetric(metric, n) { return state.offers.reduce(function (s, o) { return s + sumMetric(o, metric, n); }, 0); }
+/* Visualizações de anúncio: derivadas das visualizações de página por um CTR estável
+   de anúncio por oferta (~2% a 3,3%), simulando o topo do funil de tráfego pago. */
+function adFactor(o) {
+  var h = 0;
+  for (var i = 0; i < o.id.length; i++) h = (h * 31 + o.id.charCodeAt(i)) >>> 0;
+  return 30 + (h % 21); // fator 30–50 => CTR anúncio→página de 2,0%–3,3%
+}
+function sumAdViews(o, n) { return sumViews(o, n) * adFactor(o); }
 function totalMetricPrev(metric) { return state.offers.reduce(function (s, o) { return s + sumMetricRange(o, metric, -14, -7); }, 0); }
 /* compat: chamadas legadas de sumLast tratam a antiga métrica de cliques como visualizações */
 function sumLast(o, n) { return sumViews(o, n); }
@@ -2610,7 +2651,7 @@ function detailBodyHtml(o) {
       statTile('Vendas', fmt(s30), cvCheck.toFixed(1).replace('.', ',') + '% dos checkouts', '<path d="M20 6 9 17l-5-5"/>') +
       statTile('Faturamento', fmtBRL(rev30), fmtBRL(o.price) + ' por venda', '<path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>') +
     '</div>' +
-    '<div class="card"><h3>Funil da oferta</h3><p class="card-sub">Últimos 30 dias · conversão visualização→venda de ' + cvView.toFixed(1).replace('.', ',') + '%</p><div class="hbars" id="funnelBars"></div></div>';
+    '<div class="card"><h3>Funil da oferta</h3><p class="card-sub">Últimos 30 dias · a jornada de cada lead, do anúncio à compra · conversão página→venda de ' + cvView.toFixed(1).replace('.', ',') + '%</p><div class="funnel" id="funnelChart"></div></div>';
   }
   if (detailTab === 'relacionadas') {
     var cat = catById(o.category);
@@ -2714,6 +2755,48 @@ function copyOfferLink(oid, id) {
   copyToClip(l.url, 'Link "' + l.label + '" copiado! 📋');
 }
 
+/* Gráfico de funil (estilo UTMify): etapas empilhadas + conversão/queda entre elas */
+function renderFunnelChart(containerId, stages) {
+  var el = document.getElementById(containerId);
+  if (!el) return;
+  var top = stages[0].value || 1;
+  el.innerHTML = stages.map(function (st, i) {
+    var out = '';
+    if (i > 0) {
+      var prev = stages[i - 1].value || 0;
+      var conv = prev > 0 ? (st.value / prev * 100) : 0;
+      var lost = 100 - conv;
+      out += '<div class="funnel-drop">' +
+        '<span class="drop-line"></span>' +
+        '<span><span class="conv">' + conv.toFixed(1).replace('.', ',') + '%</span> ' + esc(st.convLabel) + '</span>' +
+        '<span class="lost">·&nbsp;<b>' + lost.toFixed(1).replace('.', ',') + '%</b> saíram</span>' +
+        '<span class="drop-line"></span>' +
+      '</div>';
+    }
+    var share = top > 0 ? (st.value / top * 100) : 0;
+    var barW = Math.max(6, share);
+    var shareTxt = share >= 10 ? Math.round(share) + '%' : share.toFixed(1).replace('.', ',') + '%';
+    out += '<div class="funnel-stage">' +
+      '<div class="funnel-head">' +
+        '<span class="funnel-ico">' + st.emoji + '</span>' +
+        '<span class="funnel-name">' + esc(st.label) + '</span>' +
+        '<span class="funnel-count">' + fmt(st.value) + '</span>' +
+        '<span class="funnel-share" data-tip="% em relação ao topo do funil">' + shareTxt + '</span>' +
+      '</div>' +
+      '<div class="funnel-bar-track"><div class="funnel-bar" style="width:' + barW.toFixed(2) + '%"></div></div>' +
+    '</div>';
+    return out;
+  }).join('');
+}
+function funnelStages(o, n) {
+  return [
+    { emoji: '📣', label: 'Visualização de anúncio', value: sumAdViews(o, n), convLabel: '' },
+    { emoji: '👀', label: 'Visualização de página', value: sumViews(o, n), convLabel: 'clicaram e abriram a página' },
+    { emoji: '🛒', label: 'Checkout iniciado', value: sumCheckouts(o, n), convLabel: 'iniciaram o checkout' },
+    { emoji: '✅', label: 'Compra', value: sumSales(o, n), convLabel: 'concluíram a compra' }
+  ];
+}
+
 function renderOfertaDetail() {
   var host = document.getElementById('view-oferta');
   var o = findOffer(detailOfferId);
@@ -2751,11 +2834,7 @@ function renderOfertaDetail() {
 
   if (detailTab === 'preview') setupSecObserver();
   if (detailTab === 'funil') {
-    renderHBars('funnelBars', [
-      { emoji: '👀', label: 'Visualizações da página', value: sumViews(o, 30) },
-      { emoji: '🛒', label: 'Checkouts iniciados', value: sumCheckouts(o, 30) },
-      { emoji: '✅', label: 'Vendas concluídas', value: sumSales(o, 30) }
-    ]);
+    renderFunnelChart('funnelChart', funnelStages(o, 30));
   }
 }
 function setDetailTab(t) {
