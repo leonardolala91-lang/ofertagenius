@@ -784,6 +784,37 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 }
 .funnel-info:hover { color: var(--accent); border-color: var(--accent); }
 
+/* ----- preview da landing (mock de navegador) ----- */
+.preview-urlbar { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+.preview-urlbar input { flex: 1; min-width: 220px; }
+.browser-mock { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface-2); }
+.browser-bar { display: flex; align-items: center; gap: 6px; padding: 9px 14px; background: var(--surface-3); border-bottom: 1px solid var(--border); }
+.browser-bar i { width: 10px; height: 10px; border-radius: 50%; background: #3a3a3a; flex-shrink: 0; }
+.browser-bar i:first-child { background: var(--accent); }
+.browser-url { margin-left: 8px; font-size: 0.74rem; color: var(--text-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.browser-viewport { position: relative; width: 100%; height: 540px; background: #fff; }
+.browser-viewport iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ----- cards de anúncio (criativos) ----- */
+.ad-card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; }
+.ad-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+.ad-code {
+  font-weight: 800; font-size: 0.9rem; letter-spacing: 0.06em;
+  color: var(--accent); background: var(--accent-dim);
+  border: 1px solid rgba(180,255,57,0.3); border-radius: 8px; padding: 6px 14px;
+}
+.ad-actions { display: flex; gap: 6px; }
+.ad-field { margin-bottom: 14px; }
+.ad-field:last-child { margin-bottom: 0; }
+.ad-field label { display: block; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-soft); margin-bottom: 6px; }
+.ad-text {
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; font-size: 0.9rem; color: var(--text-soft);
+  white-space: pre-wrap; min-height: 1.4em; line-height: 1.55;
+}
+.ad-text.editable:focus { color: var(--text); }
+.ad-text:empty::before { content: attr(data-ph); color: var(--text-mute); opacity: 0.5; }
+
 /* ============================ RESPONSIVO ============================ */
 @media (max-width: 1080px) {
   .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -2644,19 +2675,138 @@ function detailBodyHtml(o) {
       '</div></div>';
   }
   if (detailTab === 'ativos') {
-    function assetCard(title, sub, txt) {
-      return '<div class="card" style="margin-bottom:14px;"><h3>' + title + '</h3><p class="card-sub">' + sub + '</p>' +
-        '<div class="asset-box">' + esc(txt) + '</div>' +
-        '<button class="btn btn-sm" data-copy="' + esc(txt) + '">📋 Copiar texto</button></div>';
-    }
-    return assetCard('Post para WhatsApp', 'Pronto para colar no grupo', assetWhats(o)) +
-      assetCard('Story / Legenda Instagram', 'Curto e direto para stories', assetStory(o)) +
-      assetCard('Post para Telegram', 'Formato de canal de cupons', assetTelegram(o));
+    return bodyAtivos(o);
+  }
+  if (detailTab === 'anuncios') {
+    return bodyAnuncios(o);
   }
   if (detailTab === 'links') {
     return bodyLinks(o);
   }
   return '';
+}
+
+/* ----- Aba Ativos: preview da landing/funil + textos prontos ----- */
+function bodyAtivos(o) {
+  function assetCard(title, sub, txt) {
+    return '<div class="card" style="margin-bottom:14px;"><h3>' + title + '</h3><p class="card-sub">' + sub + '</p>' +
+      '<div class="asset-box">' + esc(txt) + '</div>' +
+      '<button class="btn btn-sm" data-copy="' + esc(txt) + '">📋 Copiar texto</button></div>';
+  }
+  var pv = o.previewUrl != null ? o.previewUrl : (o.url || '');
+  var preview = '<div class="card" style="margin-bottom:14px;">' +
+    '<h3>Preview da Landing Page (funil)</h3>' +
+    '<p class="card-sub">Cole o link da página (presell, vendas, obrigado...) para visualizar o funil aqui dentro.</p>' +
+    '<div class="preview-urlbar">' +
+      '<input type="url" id="previewUrlInput" value="' + esc(pv) + '" placeholder="https://sua-landing.com" onkeydown="if(event.key===\'Enter\'){event.preventDefault();loadPreview(\'' + o.id + '\');}">' +
+      '<button class="btn btn-sm btn-primary" onclick="loadPreview(\'' + o.id + '\')">Carregar</button>' +
+      (pv ? '<a class="btn btn-sm" href="' + esc(pv) + '" target="_blank" rel="noopener">Abrir ↗</a>' : '') +
+    '</div>' +
+    (pv
+      ? '<div class="browser-mock">' +
+          '<div class="browser-bar"><i></i><i></i><i></i><span class="browser-url">' + esc(pv) + '</span></div>' +
+          '<div class="browser-viewport"><iframe src="' + esc(pv) + '" loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe></div>' +
+        '</div>' +
+        '<p class="card-sub" style="margin-top:10px;font-size:0.72rem;">Algumas plataformas (Hotmart, Kiwify, etc.) bloqueiam a exibição em preview por segurança. Se a área ficar em branco, use o botão "Abrir ↗".</p>'
+      : '<div class="empty-state"><div class="big">🔗</div><b>Nenhum link ainda</b><div>Cole a URL acima e clique em Carregar.</div></div>') +
+  '</div>';
+  return preview +
+    assetCard('Post para WhatsApp', 'Pronto para colar no grupo', assetWhats(o)) +
+    assetCard('Story / Legenda Instagram', 'Curto e direto para stories', assetStory(o)) +
+    assetCard('Post para Telegram', 'Formato de canal de cupons', assetTelegram(o));
+}
+function loadPreview(oid) {
+  var o = findOffer(oid);
+  if (!o) return;
+  var url = document.getElementById('previewUrlInput').value.trim();
+  if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
+  o.previewUrl = url;
+  save();
+  var body = document.getElementById('detailBody');
+  if (body) body.innerHTML = detailBodyHtml(o);
+  toast(url ? 'Preview carregado. 🖥️' : 'Link removido.', url ? undefined : 'warn');
+}
+
+/* ----- Aba Anúncios: criativos (CA01, CA02...) com gancho, corpo e CTA ----- */
+function offerAds(o) {
+  if (!o.ads) {
+    o.ads = [{
+      id: uid(), code: 'CA01',
+      hook: 'Cansado(a) de [problema do seu público]? O caminho não é mais esforço — é o método certo.',
+      body: 'A maioria tenta [caminho errado] e trava no meio. Com ' + o.title + ', você [benefício principal] em [prazo], sem [maior dor]. Foi assim que centenas saíram do zero e hoje têm [resultado desejado].',
+      cta: 'Toque em "Saiba mais" e comece hoje com condição especial »'
+    }];
+    save();
+  }
+  return o.ads;
+}
+function adField(label, a, o, field, ph) {
+  return '<div class="ad-field"><label>' + label + '</label>' +
+    '<div class="ad-text editable" contenteditable="true" spellcheck="false" data-oid="' + o.id + '" data-ad-id="' + a.id + '" data-ad-field="' + field + '" data-ph="' + esc(ph) + '">' + esc(a[field] || '') + '</div>' +
+  '</div>';
+}
+function bodyAnuncios(o) {
+  var ads = offerAds(o);
+  var cards = ads.map(function (a) {
+    return '<div class="ad-card">' +
+      '<div class="ad-head">' +
+        '<span class="ad-code editable" contenteditable="true" spellcheck="false" data-oid="' + o.id + '" data-ad-id="' + a.id + '" data-ad-field="code" data-tip="Código do anúncio">' + esc(a.code) + '</span>' +
+        '<div class="ad-actions">' +
+          '<button class="btn btn-sm" onclick="copyAd(\'' + o.id + '\', \'' + a.id + '\')">📋 Copiar anúncio</button>' +
+          '<button class="btn btn-sm btn-icon btn-danger" data-tip="Remover" onclick="delAd(\'' + o.id + '\', \'' + a.id + '\')">🗑</button>' +
+        '</div>' +
+      '</div>' +
+      adField('🎣 Gancho (Hook)', a, o, 'hook', 'A primeira frase que prende a atenção nos 3 primeiros segundos...') +
+      adField('📝 Corpo', a, o, 'body', 'Desenvolva: problema → agitação → solução → prova...') +
+      adField('🎯 CTA (Chamada para ação)', a, o, 'cta', 'A ação que você quer que a pessoa tome...') +
+    '</div>';
+  }).join('');
+  return '<div class="card"><div class="funnel-card-head"><h3>Anúncios da oferta</h3></div>' +
+    '<p class="card-sub">Cadastre seus criativos (CA01, CA02, CA03...) com gancho, corpo e CTA. Use-os como modelo para criar novas variações. Clique em qualquer texto para editar.</p>' +
+    cards +
+    '<button class="add-row" onclick="addAd(\'' + o.id + '\')">＋ Adicionar anúncio</button>' +
+  '</div>';
+}
+function refreshDetailBody(o) {
+  var body = document.getElementById('detailBody');
+  if (body) body.innerHTML = detailBodyHtml(o);
+}
+function addAd(oid) {
+  var o = findOffer(oid);
+  if (!o) return;
+  var ads = offerAds(o);
+  var max = 0;
+  ads.forEach(function (a) {
+    var m = /^CA(\d+)$/i.exec((a.code || '').trim());
+    if (m) { var num = parseInt(m[1], 10); if (num > max) max = num; }
+  });
+  var next = max + 1;
+  var code = 'CA' + (next < 10 ? '0' + next : '' + next);
+  ads.push({ id: uid(), code: code, hook: '', body: '', cta: '' });
+  save();
+  refreshDetailBody(o);
+  var body = document.getElementById('detailBody');
+  var hooks = body ? body.querySelectorAll('[data-ad-field="hook"]') : [];
+  var last = hooks[hooks.length - 1];
+  if (last) last.focus();
+  toast('Anúncio ' + code + ' adicionado.');
+}
+function delAd(oid, id) {
+  var o = findOffer(oid);
+  if (!o) return;
+  if (!confirm('Remover este anúncio?')) return;
+  o.ads = offerAds(o).filter(function (a) { return a.id !== id; });
+  save();
+  refreshDetailBody(o);
+  toast('Anúncio removido.', 'warn');
+}
+function copyAd(oid, id) {
+  var o = findOffer(oid);
+  if (!o) return;
+  var a = offerAds(o).filter(function (x) { return x.id === id; })[0];
+  if (!a) return;
+  var txt = '[' + a.code + ']\n\n🎣 GANCHO:\n' + (a.hook || '') + '\n\n📝 CORPO:\n' + (a.body || '') + '\n\n🎯 CTA:\n' + (a.cta || '');
+  copyToClip(txt, 'Anúncio ' + a.code + ' copiado! 📋');
 }
 
 /* ----- Links do funil da oferta (editáveis): presell, vendas, order bump, upsell, downsell... ----- */
@@ -2827,6 +2977,7 @@ function renderOfertaDetail() {
     { id: 'funil', ico: '🔻', label: 'Funil' },
     { id: 'relacionadas', ico: '🛍️', label: 'Ofertas' },
     { id: 'ativos', ico: '🖼️', label: 'Ativos' },
+    { id: 'anuncios', ico: '📢', label: 'Anúncios' },
     { id: 'links', ico: '🔗', label: 'Links' }
   ];
 
@@ -2995,6 +3146,16 @@ document.addEventListener('focusout', function (e) {
   var slot = el.getAttribute('data-edit');
   var sec = el.getAttribute('data-list');
   var stkField = el.getAttribute('data-stk-field');
+  var adId = el.getAttribute('data-ad-id');
+  var adField = el.getAttribute('data-ad-field');
+  if (adId && adField) {
+    var ad = offerAds(o).filter(function (x) { return x.id === adId; })[0];
+    if (ad) {
+      var av = (el.innerText != null ? el.innerText : el.textContent || '').replace(/ /g, ' ').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+      if (ad[adField] !== av) { ad[adField] = av; save(); toast('💾 Anúncio salvo.'); }
+    }
+    return;
+  }
   var linkId = el.getAttribute('data-link-id');
   var linkField = el.getAttribute('data-link-field');
   if (linkId && linkField) {
