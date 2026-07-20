@@ -52,6 +52,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  padding-left: var(--sidebar-w);
   font-feature-settings: "ss01" 1, "cv01" 1, "cv02" 1;
 }
 h1, h2, h3, .logo, .sec-h1, .sec-h2, .price-big, .stat-value { text-wrap: balance; }
@@ -197,9 +198,9 @@ button { font-family: var(--font); }
 
 /* ============================ MAIN ============================ */
 .main {
-  margin-left: var(--sidebar-w);
-  padding: 32px clamp(20px, 4vw, 48px) 64px;
-  max-width: 1240px;
+  margin: 0 auto;
+  padding: 36px clamp(28px, 4vw, 64px) 72px;
+  max-width: 1520px;
 }
 .view { display: none; }
 .view.active { display: block; animation: fadeIn 0.25s ease; }
@@ -752,7 +753,8 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
   }
   .sidebar.open { transform: translateX(0); box-shadow: 30px 0 60px rgba(0,0,0,0.6); }
   .mobile-topbar { display: flex; }
-  .main { margin-left: 0; padding-top: 84px; }
+  body { padding-left: 0; }
+  .main { padding: 84px 18px 64px; }
   .cat-grid { grid-template-columns: 1fr; }
   .offer-actions { flex-direction: column; }
   .form-row { grid-template-columns: 1fr; }
