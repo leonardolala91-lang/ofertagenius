@@ -732,6 +732,44 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
   font-weight: 700; font-size: 0.9rem;
 }
 
+/* ----- tela de login / criar acesso ----- */
+.auth-screen {
+  position: fixed; inset: 0; z-index: 500;
+  background: radial-gradient(1200px 600px at 25% 10%, #17220b 0%, var(--bg) 55%);
+  display: grid; place-items: center; padding: 24px; overflow-y: auto;
+}
+.auth-card {
+  width: 100%; max-width: 430px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 38px 34px;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.65);
+}
+.auth-logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 800; justify-content: center; letter-spacing: -0.02em; }
+.auth-logo em { font-style: normal; color: var(--accent); }
+.auth-sub { text-align: center; color: var(--text-mute); font-size: 0.88rem; margin: 8px 0 28px; }
+.auth-field { margin-bottom: 15px; }
+.auth-error { color: var(--red); font-size: 0.82rem; margin: 4px 0 12px; min-height: 1.1em; }
+.auth-toggle { text-align: center; margin-top: 20px; font-size: 0.85rem; color: var(--text-mute); }
+.auth-toggle a { color: var(--accent); cursor: pointer; font-weight: 700; }
+.auth-toggle a:hover { text-decoration: underline; }
+.auth-note {
+  margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border-soft);
+  font-size: 0.7rem; color: var(--text-mute); text-align: center; line-height: 1.55;
+}
+.chip-logout {
+  width: 34px; height: 34px; flex-shrink: 0;
+  background: none; border: 1px solid var(--border-soft); border-radius: 9px;
+  color: var(--text-mute); cursor: pointer; font-size: 1rem;
+  display: grid; place-items: center; transition: all 0.15s;
+}
+.chip-logout:hover { color: var(--red); border-color: rgba(255,92,92,0.4); background: var(--red-dim); }
+
+/* ----- links da oferta editáveis (funil) ----- */
+.link-row .link-info { display: flex; flex-direction: column; gap: 3px; }
+.link-label { font-size: 0.85rem; padding: 2px 4px; }
+.link-url { font-size: 0.8rem; color: var(--text-mute); word-break: break-all; padding: 2px 4px; }
+.link-url:empty::before { content: 'Cole o link aqui…'; color: var(--text-mute); opacity: 0.5; }
+
 /* ============================ RESPONSIVO ============================ */
 @media (max-width: 1080px) {
   .stats-grid { grid-template-columns: 1fr 1fr; }
@@ -804,10 +842,11 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
   </div>
   <div class="user-chip">
     <span class="avatar" id="userAvatar">OG</span>
-    <div>
+    <div style="flex:1;min-width:0;">
       <b id="userName">Meu Canal</b>
       <span>Plano Genius • Anual</span>
     </div>
+    <button class="chip-logout" id="btnLogout" data-tip="Sair da conta" onclick="logout()">⏻</button>
   </div>
 </aside>
 
@@ -1054,6 +1093,37 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 
 <div class="toasts" id="toasts"></div>
 <div class="hover-tip" id="hoverTip"></div>
+
+<!-- ===================== LOGIN / CRIAR ACESSO ===================== -->
+<div class="auth-screen" id="authScreen" style="display:none;">
+  <div class="auth-card">
+    <div class="auth-logo"><span class="logo-mark">⚡</span> Oferta<em>Genius</em></div>
+    <div class="auth-sub" id="authSub">Entre para acessar seu painel</div>
+
+    <div class="auth-field" id="authNameField" style="display:none;">
+      <label for="authName">Seu nome ou do seu negócio</label>
+      <input type="text" id="authName" placeholder="Ex.: Meu Ecossistema Digital">
+    </div>
+    <div class="auth-field">
+      <label for="authEmail">E-mail</label>
+      <input type="email" id="authEmail" placeholder="voce@email.com" autocomplete="username">
+    </div>
+    <div class="auth-field">
+      <label for="authPass">Senha</label>
+      <input type="password" id="authPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <div class="auth-field" id="authPass2Field" style="display:none;">
+      <label for="authPass2">Confirmar senha</label>
+      <input type="password" id="authPass2" placeholder="••••••••">
+    </div>
+
+    <div class="auth-error" id="authError"></div>
+    <button class="btn btn-primary" id="authSubmit" style="width:100%;padding:14px;font-weight:800;font-size:0.95rem;">Entrar</button>
+
+    <div class="auth-toggle" id="authToggle"></div>
+    <div class="auth-note">🔒 Acesso protegido neste navegador. Este é um controle local (front-end) — para login real com vários usuários e senha no servidor, é preciso um backend.</div>
+  </div>
+</div>
 
 <script>
 /* ==========================================================================
@@ -2558,18 +2628,86 @@ function detailBodyHtml(o) {
       assetCard('Post para Telegram', 'Formato de canal de cupons', assetTelegram(o));
   }
   if (detailTab === 'links') {
-    function linkRow(label, sub, url) {
-      return '<div class="link-row"><div class="link-info"><b>' + label + '</b><span>' + esc(url) + '</span>' +
-        (sub ? '<span style="display:block;margin-top:2px;font-size:0.7rem;">' + sub + '</span>' : '') + '</div>' +
-        '<button class="btn btn-sm" data-copy="' + esc(url) + '">📋 Copiar</button></div>';
-    }
-    return '<div class="card"><h3>Links da oferta</h3><p class="card-sub">Use sempre o link rastreado nas postagens — é ele que alimenta o relatório de vendas.</p>' +
-      linkRow('🔗 Link rastreado (recomendado)', 'Visualizações, checkouts e vendas contabilizados no painel + monitorado pelo Radar', trackedLink(o)) +
-      linkRow('🌐 Link original', '', o.url) +
-      linkRow('📊 Link com UTM', 'Para cruzar com o Google Analytics / relatórios da loja', utmLink(o)) +
-    '</div>';
+    return bodyLinks(o);
   }
   return '';
+}
+
+/* ----- Links do funil da oferta (editáveis): presell, vendas, order bump, upsell, downsell... ----- */
+function offerLinksList(o) {
+  if (!o.links) {
+    o.links = [
+      { id: uid(), label: 'Presell', url: '' },
+      { id: uid(), label: 'Página de Vendas', url: o.url || '' },
+      { id: uid(), label: 'Order Bump', url: '' },
+      { id: uid(), label: 'Upsell 1', url: '' },
+      { id: uid(), label: 'Downsell 1', url: '' },
+      { id: uid(), label: 'Página de Obrigado', url: '' }
+    ];
+    save();
+  }
+  return o.links;
+}
+function bodyLinks(o) {
+  var links = offerLinksList(o);
+  var rows = links.map(function (l) {
+    return '<div class="link-row">' +
+      '<div class="link-info">' +
+        '<b class="link-label editable" contenteditable="true" spellcheck="false" data-oid="' + o.id + '" data-link-id="' + l.id + '" data-link-field="label">' + esc(l.label) + '</b>' +
+        '<span class="link-url editable" contenteditable="true" spellcheck="false" data-oid="' + o.id + '" data-link-id="' + l.id + '" data-link-field="url">' + esc(l.url || '') + '</span>' +
+      '</div>' +
+      '<div class="offer-actions">' +
+        '<button class="btn btn-sm btn-icon" data-tip="Copiar link" onclick="copyOfferLink(\'' + o.id + '\', \'' + l.id + '\')">📋</button>' +
+        (l.url ? '<a class="btn btn-sm btn-icon" href="' + esc(l.url) + '" target="_blank" rel="noopener" data-tip="Abrir link">↗</a>' : '') +
+        '<button class="btn btn-sm btn-icon btn-danger" data-tip="Remover" onclick="delOfferLink(\'' + o.id + '\', \'' + l.id + '\')">🗑</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+  return '<div class="card"><h3>Links da oferta</h3>' +
+    '<p class="card-sub">Organize o funil desta oferta — presell, página de vendas, order bump, upsell, downsell, obrigado e o que mais precisar. Clique no nome ou no link para editar.</p>' +
+    rows +
+    '<button class="add-row" onclick="addOfferLink(\'' + o.id + '\')">＋ Adicionar link</button>' +
+    '<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-soft);">' +
+      '<p class="card-sub" style="margin-bottom:10px;">Gerados automaticamente pelo Radar (somente cópia):</p>' +
+      genLinkRow('🔗 Link rastreado', trackedLink(o)) +
+      genLinkRow('📊 Link com UTM', utmLink(o)) +
+    '</div>' +
+  '</div>';
+}
+function genLinkRow(label, url) {
+  return '<div class="link-row"><div class="link-info"><b>' + label + '</b><span style="word-break:break-all;font-size:0.8rem;color:var(--text-mute);">' + esc(url) + '</span></div>' +
+    '<button class="btn btn-sm" data-copy="' + esc(url) + '">📋 Copiar</button></div>';
+}
+function refreshLinksTab(o) {
+  var body = document.getElementById('detailBody');
+  if (body) body.innerHTML = detailBodyHtml(o);
+}
+function addOfferLink(oid) {
+  var o = findOffer(oid);
+  if (!o) return;
+  offerLinksList(o).push({ id: uid(), label: 'Novo link', url: '' });
+  save();
+  refreshLinksTab(o);
+  var body = document.getElementById('detailBody');
+  var labels = body ? body.querySelectorAll('[data-link-field="label"]') : [];
+  var last = labels[labels.length - 1];
+  if (last) { last.focus(); try { document.execCommand('selectAll', false, null); } catch (e) {} }
+}
+function delOfferLink(oid, id) {
+  var o = findOffer(oid);
+  if (!o) return;
+  o.links = offerLinksList(o).filter(function (l) { return l.id !== id; });
+  save();
+  refreshLinksTab(o);
+  toast('Link removido.', 'warn');
+}
+function copyOfferLink(oid, id) {
+  var o = findOffer(oid);
+  if (!o) return;
+  var l = offerLinksList(o).filter(function (x) { return x.id === id; })[0];
+  if (!l) return;
+  if (!l.url) { toast('Esse link ainda está vazio.', 'warn'); return; }
+  copyToClip(l.url, 'Link "' + l.label + '" copiado! 📋');
 }
 
 function renderOfertaDetail() {
@@ -2756,6 +2894,21 @@ document.addEventListener('focusout', function (e) {
   var slot = el.getAttribute('data-edit');
   var sec = el.getAttribute('data-list');
   var stkField = el.getAttribute('data-stk-field');
+  var linkId = el.getAttribute('data-link-id');
+  var linkField = el.getAttribute('data-link-field');
+  if (linkId && linkField) {
+    var lk = offerLinksList(o).filter(function (x) { return x.id === linkId; })[0];
+    if (lk) {
+      var newv = linkField === 'url' ? (el.textContent || '').trim() : txt;
+      if (lk[linkField] !== newv) {
+        lk[linkField] = newv;
+        save();
+        toast('💾 Link salvo.');
+        if (linkField === 'url' && currentView === 'oferta' && detailTab === 'links') refreshLinksTab(o);
+      }
+    }
+    return;
+  }
   if (stkField) {
     var sIdx = parseInt(el.getAttribute('data-stk-idx'), 10);
     materializeStack(o);
@@ -2804,7 +2957,7 @@ document.addEventListener('focusout', function (e) {
 document.addEventListener('keydown', function (e) {
   if (e.key !== 'Enter') return;
   var t = e.target;
-  if (t && t.getAttribute && (t.getAttribute('data-edit') || t.getAttribute('data-list') || t.getAttribute('data-stk-field'))) {
+  if (t && t.getAttribute && (t.getAttribute('data-edit') || t.getAttribute('data-list') || t.getAttribute('data-stk-field') || t.getAttribute('data-link-field'))) {
     e.preventDefault();
     t.blur();
   }
@@ -2826,12 +2979,110 @@ window.addEventListener('resize', (function () {
   return function () { clearTimeout(t); t = setTimeout(renderCurrent, 200); };
 })());
 
+/* ==========================================================================
+   AUTENTICAÇÃO — controle de acesso local (front-end; não é segurança real)
+   ========================================================================== */
+var AUTH_KEY = 'ofertagenius_auth';
+var SESSION_KEY = 'ofertagenius_session';
+var authMode = 'login';
+
+function hashPass(s) {
+  var h = 5381;
+  for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) >>> 0;
+  return 'h' + h.toString(36);
+}
+function getAuth() {
+  try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch (e) { return null; }
+}
+function hasSession() { return localStorage.getItem(SESSION_KEY) === '1'; }
+function av(id) { return document.getElementById(id).value; }
+
+function updateAuthUI() {
+  var acc = getAuth();
+  var isSignup = authMode === 'signup';
+  document.getElementById('authNameField').style.display = isSignup ? '' : 'none';
+  document.getElementById('authPass2Field').style.display = isSignup ? '' : 'none';
+  document.getElementById('authSub').textContent = isSignup ? 'Crie seu acesso para começar' : 'Entre para acessar seu painel';
+  document.getElementById('authSubmit').textContent = isSignup ? 'Criar acesso' : 'Entrar';
+  document.getElementById('authError').textContent = '';
+  document.getElementById('authToggle').innerHTML = isSignup
+    ? 'Já tem acesso? <a id="authSwitch">Entrar</a>'
+    : 'Ainda não tem acesso? <a id="authSwitch">Criar agora</a>';
+  document.getElementById('authSwitch').onclick = function () {
+    authMode = isSignup ? 'login' : 'signup';
+    updateAuthUI();
+  };
+  if (!isSignup && acc && acc.email) document.getElementById('authEmail').value = acc.email;
+}
+function showAuth() {
+  authMode = getAuth() ? 'login' : 'signup';
+  updateAuthUI();
+  document.getElementById('authPass').value = '';
+  document.getElementById('authScreen').style.display = 'grid';
+  setTimeout(function () {
+    document.getElementById(authMode === 'signup' ? 'authName' : 'authEmail').focus();
+  }, 60);
+}
+function enterApp() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('authPass').value = '';
+  document.getElementById('authPass2').value = '';
+  applySettings();
+  route();
+}
+function doAuthSubmit() {
+  var email = av('authEmail').trim().toLowerCase();
+  var pass = av('authPass');
+  var err = document.getElementById('authError');
+  if (authMode === 'signup') {
+    var name = av('authName').trim();
+    var pass2 = av('authPass2');
+    if (!name) { err.textContent = 'Informe seu nome.'; return; }
+    if (!/.+@.+\..+/.test(email)) { err.textContent = 'Digite um e-mail válido.'; return; }
+    if (pass.length < 4) { err.textContent = 'A senha precisa de ao menos 4 caracteres.'; return; }
+    if (pass !== pass2) { err.textContent = 'As senhas não conferem.'; return; }
+    localStorage.setItem(AUTH_KEY, JSON.stringify({ email: email, name: name, passHash: hashPass(pass), createdAt: new Date().toISOString() }));
+    localStorage.setItem(SESSION_KEY, '1');
+    state.settings.name = name; save();
+    enterApp();
+    toast('Acesso criado! Bem-vindo(a), ' + name.split(' ')[0] + '. 🎉');
+  } else {
+    var acc = getAuth();
+    if (!acc) { authMode = 'signup'; updateAuthUI(); return; }
+    if (email !== acc.email || hashPass(pass) !== acc.passHash) {
+      err.textContent = 'E-mail ou senha incorretos.'; return;
+    }
+    localStorage.setItem(SESSION_KEY, '1');
+    enterApp();
+    toast('Bem-vindo(a) de volta! 👋');
+  }
+}
+function logout() {
+  if (!confirm('Deseja sair da sua conta?')) return;
+  localStorage.removeItem(SESSION_KEY);
+  showAuth();
+}
+function initAuth() {
+  document.getElementById('authSubmit').addEventListener('click', doAuthSubmit);
+  ['authName', 'authEmail', 'authPass', 'authPass2'].forEach(function (id) {
+    document.getElementById(id).addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); doAuthSubmit(); }
+    });
+  });
+  if (hasSession() && getAuth()) {
+    document.getElementById('authScreen').style.display = 'none';
+  } else {
+    showAuth();
+  }
+}
+
 /* Boot */
 load();
 fillCatSelects();
 applySettings();
 updateAlertBadge();
 route();
+initAuth();
 </script>
 
 </body>
