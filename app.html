@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OfertaGenius — Painel</title>
-<meta name="description" content="Painel do OfertaGenius: organize, monitore e rastreie suas ofertas em tempo real.">
+<meta name="description" content="Painel do OfertaGenius: organize, monitore e rastreie as ofertas dos seus infoprodutos, mentorias e micro-SaaS em tempo real.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..900&display=swap" rel="stylesheet">
@@ -35,6 +35,11 @@
   --radius-lg: 20px;
   --sidebar-w: 280px;
   --font: "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  /* profundidade — sombras em camadas + realce sutil no topo dos cards */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.45);
+  --shadow-md: 0 6px 18px rgba(0,0,0,0.45), 0 2px 5px rgba(0,0,0,0.55);
+  --shadow-lg: 0 22px 60px rgba(0,0,0,0.60), 0 8px 22px rgba(0,0,0,0.45);
+  --edge-hi: inset 0 1px 0 rgba(255,255,255,0.045);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -45,7 +50,11 @@ body {
   color: var(--text);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01" 1, "cv01" 1, "cv02" 1;
 }
+h1, h2, h3, .logo, .sec-h1, .sec-h2, .price-big, .stat-value { text-wrap: balance; }
 ::selection { background: var(--accent); color: #000; }
 button { font-family: var(--font); }
 
@@ -54,20 +63,21 @@ button { font-family: var(--font); }
   position: fixed;
   inset: 0 auto 0 0;
   width: var(--sidebar-w);
-  background: var(--black);
-  border-right: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, #0A0A0A 0%, var(--black) 100%);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   padding: 28px 20px 20px;
   z-index: 100;
+  box-shadow: 14px 0 40px rgba(0,0,0,0.35);
 }
 .logo {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: 1.3rem;
+  font-weight: 900;
+  letter-spacing: -0.035em;
   padding: 0 8px 26px;
 }
 .logo .logo-mark {
@@ -113,7 +123,7 @@ button { font-family: var(--font); }
   display: flex; align-items: center; gap: 12px;
   padding: 11px 12px; border-radius: 10px;
   color: var(--text-soft); text-decoration: none;
-  font-size: 0.9rem; font-weight: 500;
+  font-size: 0.9rem; font-weight: 600; letter-spacing: -0.01em;
   transition: background 0.15s ease, color 0.15s ease;
   border-left: 2px solid transparent;
 }
@@ -196,18 +206,21 @@ button { font-family: var(--font); }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 .view-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
-.view-head h1 { font-size: clamp(1.4rem, 2.6vw, 1.9rem); font-weight: 800; letter-spacing: -0.02em; }
-.view-head p { color: var(--text-mute); font-size: 0.88rem; margin-top: 2px; }
+.view-head h1 { font-size: clamp(1.6rem, 3vw, 2.3rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.12; }
+.view-head p { color: var(--text-soft); font-size: 0.92rem; margin-top: 4px; letter-spacing: 0.002em; }
 
 /* ============================ COMPONENTES ============================ */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, #1D1D1D 0%, var(--surface) 100%);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 22px;
+  box-shadow: var(--edge-hi), var(--shadow-md);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
-.card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
-.card .card-sub { font-size: 0.78rem; color: var(--text-mute); margin-bottom: 16px; }
+.card:hover { box-shadow: var(--edge-hi), var(--shadow-lg); }
+.card h3 { font-size: 1.02rem; font-weight: 800; letter-spacing: -0.015em; margin-bottom: 4px; color: var(--text); }
+.card .card-sub { font-size: 0.78rem; color: var(--text-mute); margin-bottom: 16px; letter-spacing: 0.005em; }
 
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -264,18 +277,24 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 /* ============================ STAT TILES ============================ */
 .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
 .stat-tile {
-  background: var(--surface);
-  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, #1E1E1E 0%, var(--surface) 100%);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 20px;
+  box-shadow: var(--edge-hi), var(--shadow-md);
+  transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
+.stat-tile:hover { transform: translateY(-2px); border-color: rgba(180,255,57,0.28); box-shadow: var(--edge-hi), var(--shadow-lg); }
 .stat-tile .stat-label {
   display: flex; align-items: center; gap: 8px;
-  font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-  letter-spacing: 0.08em; color: var(--text-mute); margin-bottom: 10px;
+  font-size: 0.72rem; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.1em; color: var(--text-mute); margin-bottom: 10px;
 }
 .stat-tile .stat-label svg { width: 14px; height: 14px; color: var(--accent); }
-.stat-tile .stat-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.stat-tile .stat-value {
+  font-size: 2.15rem; font-weight: 800; letter-spacing: -0.035em; line-height: 1.05;
+  font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1, "ss01" 1;
+}
 .stat-tile .stat-delta { font-size: 0.75rem; margin-top: 6px; color: var(--text-mute); }
 .stat-tile .stat-delta .up { color: var(--accent); font-weight: 700; }
 .stat-tile .stat-delta .down { color: var(--red); font-weight: 700; }
@@ -336,13 +355,14 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 .offer-list { display: flex; flex-direction: column; gap: 10px; }
 .offer-card {
   display: flex; align-items: center; gap: 14px;
-  background: var(--surface);
-  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, #1D1D1D 0%, var(--surface) 100%);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 14px 16px;
-  transition: border-color 0.15s;
+  box-shadow: var(--edge-hi), var(--shadow-sm);
+  transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
 }
-.offer-card:hover { border-color: #3A3A3A; }
+.offer-card:hover { border-color: rgba(180,255,57,0.30); box-shadow: var(--edge-hi), var(--shadow-md); transform: translateY(-1px); }
 .offer-card.is-dead { opacity: 0.75; }
 .offer-thumb {
   width: 44px; height: 44px; border-radius: 12px;
@@ -353,11 +373,11 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 }
 .offer-body { flex: 1; min-width: 0; }
 .offer-body b {
-  display: block; font-size: 0.92rem; font-weight: 600;
+  display: block; font-size: 0.95rem; font-weight: 700; letter-spacing: -0.015em; color: var(--text);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .offer-meta { font-size: 0.75rem; color: var(--text-mute); display: flex; gap: 8px; flex-wrap: wrap; margin-top: 2px; }
-.offer-meta .price { color: var(--accent); font-weight: 700; }
+.offer-meta .price { color: var(--accent); font-weight: 800; font-variant-numeric: tabular-nums; }
 .offer-meta .old-price { text-decoration: line-through; }
 .offer-clicks { text-align: right; flex-shrink: 0; }
 .offer-clicks b { display: block; font-size: 0.95rem; }
@@ -469,10 +489,11 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 .modal {
   width: 100%; max-width: 560px;
   max-height: 90vh; overflow-y: auto;
-  background: var(--surface);
+  background: linear-gradient(180deg, #1E1E1E 0%, var(--surface) 100%);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: 28px;
+  box-shadow: var(--edge-hi), var(--shadow-lg);
   animation: fadeIn 0.2s ease;
 }
 .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
@@ -578,11 +599,12 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 
 .sec-cards { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .sec-card {
-  background: #0E0E0E;
-  border: 1px solid var(--border-soft);
+  background: linear-gradient(180deg, #141414 0%, #0E0E0E 100%);
+  border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: clamp(20px, 3vw, 32px);
   scroll-margin-top: 16px;
+  box-shadow: var(--edge-hi), var(--shadow-lg);
 }
 .sec-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
 .sec-chip {
@@ -670,6 +692,22 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 }
 .add-row:hover { color: var(--accent); border-color: rgba(180,255,57,0.4); }
 
+/* ----- público ideal: colunas "para quem é" x "para quem não é" ----- */
+.publico-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.publico-col-head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 0.82rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.publico-col-head .ico { font-size: 0.95rem; line-height: 1; }
+.publico-col-head.yes { color: var(--accent); }
+.publico-col-head.no { color: var(--red); }
+.publico-col-no .list-rows .row { border-color: rgba(255,92,92,0.22); }
+.publico-close {
+  margin-top: 18px; color: var(--text-mute); font-size: 0.9rem; font-style: italic;
+  padding: 4px 2px;
+}
+
 /* ----- preço e oferta: ancoragem + stack de valor + escassez ----- */
 .price-center { text-align: center; padding: 4px 0 10px; }
 .price-big {
@@ -699,6 +737,7 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
   .dash-grid, .grid-2, .config-grid { grid-template-columns: 1fr; }
   .cat-grid { grid-template-columns: 1fr 1fr; }
   .detail-layout { grid-template-columns: 1fr; }
+  .publico-cols { grid-template-columns: 1fr; gap: 24px; }
   .sec-nav { position: static; flex-direction: row; flex-wrap: wrap; gap: 6px; }
   .sec-nav .nav-label { display: none; }
   .sec-nav button { border-left: none; border: 1px solid var(--border); border-radius: 8px; }
@@ -746,18 +785,9 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-8-8V3h9.6l8 8a2 2 0 0 1 .4 2.4z"/><circle cx="7.5" cy="7.5" r="1"/></svg>
       Minhas Ofertas
     </a>
-    <a href="#categorias" data-view="categorias">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>
-      Categorias
-    </a>
-    <a href="#alertas" data-view="alertas">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-      Alertas
-      <span class="nav-badge zero" id="alertBadge">0</span>
-    </a>
     <a href="#relatorios" data-view="relatorios">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
-      Relatório de Cliques
+      Relatório de Vendas
     </a>
     <span class="nav-label" style="margin-top:16px;">Sistema</span>
     <a href="#config" data-view="config">
@@ -787,7 +817,7 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
     <div class="view-head">
       <div>
         <h1>Dashboard</h1>
-        <p>Visão geral da sua operação de ofertas.</p>
+        <p>Visão geral dos seus infoprodutos, mentorias e micro-SaaS.</p>
       </div>
       <button class="btn btn-primary" onclick="openOfferModal()">＋ Nova Oferta</button>
     </div>
@@ -795,14 +825,14 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
     <div class="stats-grid" id="dashStats"></div>
 
     <div class="card" style="margin-bottom:14px;">
-      <h3>Cliques por dia</h3>
+      <h3>Faturamento por dia</h3>
       <p class="card-sub">Últimos 14 dias — todas as ofertas</p>
       <div class="chart-wrap" id="dashLineChart"></div>
     </div>
 
     <div class="dash-grid">
       <div class="card">
-        <h3>Top ofertas por cliques</h3>
+        <h3>Top ofertas por faturamento</h3>
         <p class="card-sub">Últimos 7 dias</p>
         <div class="hbars" id="dashTopBars"></div>
       </div>
@@ -835,7 +865,8 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
       </select>
       <select id="sortBy">
         <option value="recent">Mais recentes</option>
-        <option value="clicks">Mais cliques (7d)</option>
+        <option value="revenue">Maior faturamento (7d)</option>
+        <option value="sales">Mais vendas (7d)</option>
         <option value="price">Menor preço</option>
       </select>
     </div>
@@ -843,58 +874,12 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
     <div class="offer-list" id="offerList"></div>
   </section>
 
-  <!-- ============ CATEGORIAS ============ -->
-  <section class="view" id="view-categorias">
-    <div class="view-head">
-      <div>
-        <h1>Categorias</h1>
-        <p>Organize suas ofertas por nicho.</p>
-      </div>
-    </div>
-
-    <div class="card" style="margin-bottom:18px;">
-      <h3>Nova categoria</h3>
-      <p class="card-sub">Ex.: Pet, Games, Bebês...</p>
-      <div class="toolbar" style="margin-bottom:0;">
-        <input type="text" id="newCatEmoji" placeholder="Emoji (ex.: 🐶)" style="max-width:140px;">
-        <input type="text" id="newCatName" placeholder="Nome da categoria" style="max-width:260px;">
-        <button class="btn btn-primary" onclick="addCategory()">Adicionar</button>
-      </div>
-    </div>
-
-    <div class="cat-grid" id="catGrid"></div>
-  </section>
-
-  <!-- ============ ALERTAS ============ -->
-  <section class="view" id="view-alertas">
-    <div class="view-head">
-      <div>
-        <h1>Alertas</h1>
-        <p>O Radar vigia seus links para você agir antes do clique perdido.</p>
-      </div>
-    </div>
-
-    <div class="radar-card">
-      <span class="pulse-dot" style="width:12px;height:12px;"></span>
-      <div class="radar-info">
-        <b>Radar de Links</b>
-        <span id="radarLastCheck">Última verificação: agora mesmo</span>
-      </div>
-      <button class="btn btn-primary" id="btnRadar" onclick="runRadar()">
-        <span class="spinner"></span>
-        <span class="btn-txt">Verificar links agora</span>
-      </button>
-    </div>
-
-    <div id="alertsContainer"></div>
-  </section>
-
   <!-- ============ RELATÓRIOS ============ -->
   <section class="view" id="view-relatorios">
     <div class="view-head">
       <div>
-        <h1>Relatório de Cliques</h1>
-        <p>Descubra onde seu público está clicando — e onde está o lucro.</p>
+        <h1>Relatório de Vendas</h1>
+        <p>Da visualização ao checkout à venda — veja onde está o faturamento.</p>
       </div>
       <button class="btn" id="btnTableView" onclick="toggleTableView()">☰ Ver como tabela</button>
     </div>
@@ -910,18 +895,18 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 
     <div id="reportCharts">
       <div class="card" style="margin-bottom:14px;">
-        <h3>Cliques por dia</h3>
+        <h3>Faturamento por dia</h3>
         <p class="card-sub" id="reportLineSub">—</p>
         <div class="chart-wrap" id="reportLineChart"></div>
       </div>
       <div class="grid-2">
         <div class="card">
-          <h3>Cliques por categoria</h3>
+          <h3>Faturamento por categoria</h3>
           <p class="card-sub" id="reportCatSub">—</p>
           <div class="hbars" id="reportCatBars"></div>
         </div>
         <div class="card">
-          <h3>Top ofertas</h3>
+          <h3>Top ofertas por faturamento</h3>
           <p class="card-sub" id="reportTopSub">—</p>
           <div class="hbars" id="reportTopBars"></div>
         </div>
@@ -929,7 +914,7 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
     </div>
 
     <div id="reportTable" style="display:none;" class="card">
-      <h3>Todas as ofertas — cliques no período</h3>
+      <h3>Todas as ofertas — funil no período</h3>
       <p class="card-sub" id="reportTableSub">—</p>
       <div style="overflow-x:auto;">
         <table class="report-table" id="reportTableEl"></table>
@@ -952,11 +937,11 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
         <p class="card-sub">Como seu canal aparece no painel.</p>
         <div class="field">
           <label for="cfgName">Nome do canal</label>
-          <input type="text" id="cfgName" placeholder="Ex.: Achadinhos da Lê">
+          <input type="text" id="cfgName" placeholder="Ex.: Meu Ecossistema Digital">
         </div>
         <div class="field">
-          <label for="cfgGoal">Meta mensal de cliques</label>
-          <input type="number" id="cfgGoal" min="0" placeholder="Ex.: 10000">
+          <label for="cfgGoal">Meta mensal de vendas</label>
+          <input type="number" id="cfgGoal" min="0" placeholder="Ex.: 200">
         </div>
         <button class="btn btn-primary" onclick="saveSettings()">Salvar perfil</button>
       </div>
@@ -1074,7 +1059,7 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
    ========================================================================== */
 'use strict';
 
-var LS_KEY = 'ofertagenius_v1';
+var LS_KEY = 'ofertagenius_v3';
 var HISTORY_DAYS = 30;
 var state = null;
 
@@ -1085,6 +1070,13 @@ function esc(s) {
 }
 function fmt(n) { return Number(n || 0).toLocaleString('pt-BR'); }
 function fmtBRL(n) { return Number(n || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+/* interpreta um preço digitado no formato brasileiro ("R$ 1.234,56" -> 1234.56) */
+function parseBRL(str) {
+  var m = /(\d[\d.]*(?:,\d+)?)/.exec(String(str == null ? '' : str));
+  if (!m) return null;
+  var n = parseFloat(m[1].replace(/\./g, '').replace(',', '.'));
+  return isNaN(n) ? null : n;
+}
 function uid() { return 'id' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
 function localISO(d) {
   d = d || new Date();
@@ -1092,7 +1084,7 @@ function localISO(d) {
 }
 function daysBetween(a, b) { return Math.round((new Date(b) - new Date(a)) / 86400000); }
 
-/* PRNG com semente — histórico de cliques estável e orgânico */
+/* PRNG com semente — histórico estável e orgânico */
 function mulberry32(a) {
   return function () {
     a |= 0; a = a + 0x6D2B79F5 | 0;
@@ -1102,15 +1094,28 @@ function mulberry32(a) {
   };
 }
 
-function makeClicks(base, seed) {
+/* Funil diário: visualizações de página -> checkouts iniciados -> vendas.
+   O faturamento é derivado (vendas x preço da oferta). */
+function makeFunnel(base, seed) {
   var rnd = mulberry32(seed);
-  var days = [];
+  var views = [], checkouts = [], sales = [];
   for (var i = 0; i < HISTORY_DAYS; i++) {
     var weekendBoost = ((i % 7 === 5) || (i % 7 === 6)) ? 1.4 : 1;
     var trend = 0.75 + (i / HISTORY_DAYS) * 0.5;
-    days.push(Math.max(0, Math.round(base * weekendBoost * trend * (0.55 + rnd() * 0.9))));
+    var v = Math.max(0, Math.round(base * 5 * weekendBoost * trend * (0.55 + rnd() * 0.9)));
+    var c = Math.round(v * (0.06 + rnd() * 0.06));                 // 6–12% iniciam checkout
+    var s = Math.min(c, Math.round(c * (0.35 + rnd() * 0.22)));    // 35–57% dos checkouts viram venda
+    views.push(v); checkouts.push(c); sales.push(s);
   }
-  return { days: days, last: localISO() };
+  return {
+    views:     { days: views,     last: localISO() },
+    checkouts: { days: checkouts, last: localISO() },
+    sales:     { days: sales,     last: localISO() }
+  };
+}
+function emptyFunnel() {
+  function z() { var a = []; for (var i = 0; i < HISTORY_DAYS; i++) a.push(0); return { days: a, last: localISO() }; }
+  return { views: z(), checkouts: z(), sales: z() };
 }
 
 function seedState() {
@@ -1118,27 +1123,24 @@ function seedState() {
   var H = 3600000, D = 86400000;
   function iso(t) { return new Date(t).toISOString(); }
   return {
-    settings: { name: 'Achadinhos da Lê', goal: 10000, lastRadar: iso(now) },
+    settings: { name: 'Meu Ecossistema Digital', goal: 200, lastRadar: iso(now) },
     categories: [
-      { id: 'eletronicos', emoji: '⚡', name: 'Eletrônicos' },
-      { id: 'moda',        emoji: '👗', name: 'Moda' },
-      { id: 'casa',        emoji: '🏠', name: 'Casa & Cozinha' },
-      { id: 'beleza',      emoji: '💄', name: 'Beleza' },
-      { id: 'mercado',     emoji: '🛒', name: 'Mercado' },
-      { id: 'saude',       emoji: '⚖️', name: 'Saúde & Emagrecimento' }
+      { id: 'infoprodutos', emoji: '📘', name: 'Infoprodutos' },
+      { id: 'mentorias',    emoji: '🎓', name: 'Mentorias' },
+      { id: 'microsaas',    emoji: '🧩', name: 'Micro-SaaS' }
     ],
     offers: [
-      { id: 'demo-emagre', title: 'Protocolo Emagrecer com Saúde 30D — Programa Completo', url: 'https://pay.hotmart.com/protocolo-emagrecer-30d', store: 'Hotmart', category: 'saude', emoji: '⚖️', price: 97.00, oldPrice: 197.00, createdAt: iso(now - 4 * D), expiresAt: iso(now + 3 * D), manualExpired: false, clicks: makeClicks(58, 123) },
-      { id: uid() + '1', title: 'Fone Bluetooth TWS com Cancelamento de Ruído — 43% OFF', url: 'https://shopee.com.br/oferta-fone-tws', store: 'Shopee', category: 'eletronicos', emoji: '🎧', price: 129.90, oldPrice: 229.90, createdAt: iso(now - 12 * D), expiresAt: iso(now + 5 * D), manualExpired: false, clicks: makeClicks(48, 11) },
-      { id: uid() + '2', title: 'Air Fryer 5L Digital Inox — Frete Grátis', url: 'https://www.magazineluiza.com.br/air-fryer-5l', store: 'Magalu', category: 'casa', emoji: '🍳', price: 379.90, oldPrice: 549.90, createdAt: iso(now - 9 * D), expiresAt: iso(now + 30 * H), manualExpired: false, clicks: makeClicks(64, 22) },
-      { id: uid() + '3', title: 'Tênis Runner Masculino Amortecimento — Cupom 20%', url: 'https://www.amazon.com.br/tenis-runner', store: 'Amazon', category: 'moda', emoji: '👟', price: 159.90, oldPrice: 299.90, createdAt: iso(now - 7 * D), expiresAt: iso(now + 10 * D), manualExpired: false, clicks: makeClicks(31, 33) },
-      { id: uid() + '4', title: 'Smartphone 128GB 8GB RAM — Oferta Relâmpago', url: 'https://pt.aliexpress.com/smartphone-128', store: 'AliExpress', category: 'eletronicos', emoji: '📱', price: 1099.00, oldPrice: 1599.00, createdAt: iso(now - 15 * D), expiresAt: iso(now - 2 * D), manualExpired: false, clicks: makeClicks(72, 44) },
-      { id: uid() + '5', title: 'Serum Facial Vitamina C 30ml — Leve 2 Pague 1', url: 'https://shopee.com.br/serum-vitc', store: 'Shopee', category: 'beleza', emoji: '✨', price: 49.90, oldPrice: 89.90, createdAt: iso(now - 5 * D), expiresAt: iso(now + 8 * D), manualExpired: false, clicks: makeClicks(26, 55) },
-      { id: uid() + '6', title: 'Robô Aspirador com Mapeamento a Laser', url: 'https://www.mercadolivre.com.br/robo-aspirador', store: 'Mercado Livre', category: 'casa', emoji: '🤖', price: 899.00, oldPrice: 1499.00, createdAt: iso(now - 20 * D), expiresAt: iso(now - 6 * D), manualExpired: false, clicks: makeClicks(19, 66) },
-      { id: uid() + '7', title: 'Kit 3 Camisetas Básicas 100% Algodão', url: 'https://shopee.com.br/kit-camisetas', store: 'Shopee', category: 'moda', emoji: '👕', price: 89.90, oldPrice: 149.90, createdAt: iso(now - 3 * D), expiresAt: null, manualExpired: false, clicks: makeClicks(22, 77) },
-      { id: uid() + '8', title: 'Cadeira Gamer Reclinável com Apoio Lombar', url: 'https://www.amazon.com.br/cadeira-gamer', store: 'Amazon', category: 'eletronicos', emoji: '💺', price: 699.90, oldPrice: 1099.90, createdAt: iso(now - 2 * D), expiresAt: iso(now + 4 * D), manualExpired: false, clicks: makeClicks(38, 88) },
-      { id: uid() + '9', title: 'Garrafa Térmica Inox 1L — 12h Gelada', url: 'https://www.americanas.com.br/garrafa-inox', store: 'Americanas', category: 'casa', emoji: '🥤', price: 59.90, oldPrice: 99.90, createdAt: iso(now - 1 * D), expiresAt: iso(now + 15 * D), manualExpired: false, clicks: makeClicks(12, 99) },
-      { id: uid() + 'a', title: 'Café Especial Torrado em Grãos 1kg', url: 'https://www.mercadolivre.com.br/cafe-graos', store: 'Mercado Livre', category: 'mercado', emoji: '🛒', price: 64.90, oldPrice: 94.90, createdAt: iso(now - 6 * D), expiresAt: iso(now + 20 * D), manualExpired: false, clicks: makeClicks(17, 101) }
+      { id: 'demo-flagship', title: 'Método Lançamento 6 em 7 — Curso Completo', url: 'https://pay.hotmart.com/metodo-lancamento-6em7', store: 'Hotmart', category: 'infoprodutos', emoji: '📘', price: 497.00, oldPrice: 997.00, createdAt: iso(now - 4 * D), expiresAt: iso(now + 3 * D), manualExpired: false, funnel: makeFunnel(58, 123) },
+      { id: uid() + '1', title: 'Mentoria Escala Digital — Turma Trimestral', url: 'https://hubla.com/mentoria-escala-digital', store: 'Hubla', category: 'mentorias', emoji: '🎓', price: 1997.00, oldPrice: 2997.00, createdAt: iso(now - 12 * D), expiresAt: iso(now + 5 * D), manualExpired: false, funnel: makeFunnel(48, 11) },
+      { id: uid() + '2', title: 'CRM Kanban para Criadores — Plano Anual', url: 'https://checkout.stripe.com/crm-kanban-anual', store: 'Stripe', category: 'microsaas', emoji: '🧩', price: 390.00, oldPrice: 588.00, createdAt: iso(now - 9 * D), expiresAt: iso(now + 30 * H), manualExpired: false, funnel: makeFunnel(64, 22) },
+      { id: uid() + '3', title: 'Copywriting que Vende — Curso Prático', url: 'https://pay.kiwify.com.br/copy-que-vende', store: 'Kiwify', category: 'infoprodutos', emoji: '✍️', price: 297.00, oldPrice: 497.00, createdAt: iso(now - 7 * D), expiresAt: iso(now + 10 * D), manualExpired: false, funnel: makeFunnel(31, 33) },
+      { id: uid() + '4', title: 'Mentoria Tráfego Pago do Zero ao Pro', url: 'https://pay.kiwify.com.br/mentoria-trafego-pro', store: 'Kiwify', category: 'mentorias', emoji: '🎯', price: 1497.00, oldPrice: 2497.00, createdAt: iso(now - 15 * D), expiresAt: iso(now - 2 * D), manualExpired: false, funnel: makeFunnel(72, 44) },
+      { id: uid() + '5', title: 'Templates Notion para Gestão de Conteúdo', url: 'https://cakto.com.br/templates-notion-conteudo', store: 'Cakto', category: 'infoprodutos', emoji: '🗂️', price: 47.00, oldPrice: 97.00, createdAt: iso(now - 5 * D), expiresAt: iso(now + 8 * D), manualExpired: false, funnel: makeFunnel(26, 55) },
+      { id: uid() + '6', title: 'Agendador de Posts com IA — Licença Vitalícia', url: 'https://store.lemonsqueezy.com/agendador-ia', store: 'Lemon Squeezy', category: 'microsaas', emoji: '🤖', price: 297.00, oldPrice: 597.00, createdAt: iso(now - 20 * D), expiresAt: iso(now - 6 * D), manualExpired: false, funnel: makeFunnel(19, 66) },
+      { id: uid() + '7', title: 'Comunidade Criadores Pro — Assinatura Mensal', url: 'https://hubla.com/comunidade-criadores-pro', store: 'Hubla', category: 'mentorias', emoji: '👥', price: 89.90, oldPrice: 149.90, createdAt: iso(now - 3 * D), expiresAt: null, manualExpired: false, funnel: makeFunnel(22, 77) },
+      { id: uid() + '8', title: 'Pacote de Presets + Curso de Edição de Vídeo', url: 'https://pay.hotmart.com/presets-e-edicao', store: 'Hotmart', category: 'infoprodutos', emoji: '🎬', price: 129.00, oldPrice: 249.00, createdAt: iso(now - 2 * D), expiresAt: iso(now + 4 * D), manualExpired: false, funnel: makeFunnel(38, 88) },
+      { id: uid() + '9', title: 'Gerador de Landing Pages — Plano Pro', url: 'https://checkout.stripe.com/landing-pro', store: 'Stripe', category: 'microsaas', emoji: '🚀', price: 59.90, oldPrice: 99.90, createdAt: iso(now - 1 * D), expiresAt: iso(now + 15 * D), manualExpired: false, funnel: makeFunnel(12, 99) },
+      { id: uid() + 'a', title: 'Formação Completa em Vendas High-Ticket', url: 'https://sun.eduzz.com/vendas-high-ticket', store: 'Eduzz', category: 'infoprodutos', emoji: '💼', price: 897.00, oldPrice: 1497.00, createdAt: iso(now - 6 * D), expiresAt: iso(now + 20 * D), manualExpired: false, funnel: makeFunnel(17, 101) }
     ]
   };
 }
@@ -1149,44 +1151,44 @@ function load() {
     state = raw ? JSON.parse(raw) : seedState();
   } catch (e) { state = seedState(); }
   migrate();
-  normalizeClicks();
+  normalizeFunnel();
   save();
 }
 
-/* Garante que dados salvos de versões anteriores recebam os exemplos novos */
+/* Garante que estados salvos tenham as categorias do ecossistema digital */
 function migrate() {
-  if (!state.categories.some(function (c) { return c.id === 'saude'; })) {
-    state.categories.push({ id: 'saude', emoji: '⚖️', name: 'Saúde & Emagrecimento' });
-  }
-  if (!state.offers.some(function (o) { return o.id === 'demo-emagre'; })) {
-    var now = Date.now(), D = 86400000;
-    state.offers.unshift({
-      id: 'demo-emagre',
-      title: 'Protocolo Emagrecer com Saúde 30D — Programa Completo',
-      url: 'https://pay.hotmart.com/protocolo-emagrecer-30d',
-      store: 'Hotmart', category: 'saude', emoji: '⚖️',
-      price: 97.00, oldPrice: 197.00,
-      createdAt: new Date(now - 4 * D).toISOString(),
-      expiresAt: new Date(now + 3 * D).toISOString(),
-      manualExpired: false,
-      clicks: makeClicks(58, 123)
-    });
-  }
+  var defaults = [
+    { id: 'infoprodutos', emoji: '📘', name: 'Infoprodutos' },
+    { id: 'mentorias',    emoji: '🎓', name: 'Mentorias' },
+    { id: 'microsaas',    emoji: '🧩', name: 'Micro-SaaS' }
+  ];
+  state.categories = state.categories || [];
+  defaults.forEach(function (d) {
+    if (!state.categories.some(function (c) { return c.id === d.id; })) {
+      state.categories.push(d);
+    }
+  });
 }
 function save() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
-/* Desloca o histórico de cliques conforme os dias passam */
-function normalizeClicks() {
+/* Desloca o histórico do funil conforme os dias passam */
+var FUNNEL_KEYS = ['views', 'checkouts', 'sales'];
+function normalizeFunnel() {
   var today = localISO();
   state.offers.forEach(function (o) {
-    var diff = daysBetween(o.clicks.last, today);
-    if (diff > 0) {
-      for (var i = 0; i < Math.min(diff, HISTORY_DAYS); i++) {
-        o.clicks.days.shift();
-        o.clicks.days.push(0);
+    if (!o.funnel) o.funnel = emptyFunnel();
+    FUNNEL_KEYS.forEach(function (k) {
+      var s = o.funnel[k];
+      if (!s || !s.days) return;
+      var diff = daysBetween(s.last, today);
+      if (diff > 0) {
+        for (var i = 0; i < Math.min(diff, HISTORY_DAYS); i++) {
+          s.days.shift();
+          s.days.push(0);
+        }
+        s.last = today;
       }
-      o.clicks.last = today;
-    }
+    });
   });
 }
 
@@ -1207,8 +1209,36 @@ var STATUS_META = {
   expirando: { cls: 'badge-warn', label: '⏳ Expira em breve' },
   expirada:  { cls: 'badge-dead', label: '❌ Expirada' }
 };
-function sumLast(o, n) {
-  return o.clicks.days.slice(-n).reduce(function (a, b) { return a + b; }, 0);
+/* Soma dos últimos n dias de uma métrica do funil. 'revenue' = vendas x preço. */
+function sumMetric(o, metric, n) {
+  var key = metric === 'revenue' ? 'sales' : metric;
+  var s = o.funnel && o.funnel[key];
+  if (!s || !s.days) return 0;
+  var mult = metric === 'revenue' ? (o.price || 0) : 1;
+  return s.days.slice(-n).reduce(function (a, b) { return a + b; }, 0) * mult;
+}
+/* Soma de uma janela anterior (índices de slice negativos, ex.: -14,-7). */
+function sumMetricRange(o, metric, from, to) {
+  var key = metric === 'revenue' ? 'sales' : metric;
+  var s = o.funnel && o.funnel[key];
+  if (!s || !s.days) return 0;
+  var mult = metric === 'revenue' ? (o.price || 0) : 1;
+  return s.days.slice(from, to).reduce(function (a, b) { return a + b; }, 0) * mult;
+}
+function sumViews(o, n) { return sumMetric(o, 'views', n); }
+function sumCheckouts(o, n) { return sumMetric(o, 'checkouts', n); }
+function sumSales(o, n) { return sumMetric(o, 'sales', n); }
+function sumRevenue(o, n) { return sumMetric(o, 'revenue', n); }
+function totalMetric(metric, n) { return state.offers.reduce(function (s, o) { return s + sumMetric(o, metric, n); }, 0); }
+function totalMetricPrev(metric) { return state.offers.reduce(function (s, o) { return s + sumMetricRange(o, metric, -14, -7); }, 0); }
+/* compat: chamadas legadas de sumLast tratam a antiga métrica de cliques como visualizações */
+function sumLast(o, n) { return sumViews(o, n); }
+/* formato compacto para eixos (1,2k / 3M) */
+function fmtCompact(n) {
+  n = Number(n || 0);
+  if (n >= 1000000) return (n / 1000000).toFixed(n >= 10000000 ? 0 : 1).replace('.', ',').replace(',0', '') + 'M';
+  if (n >= 1000) return (n / 1000).toFixed(n >= 10000 ? 0 : 1).replace('.', ',').replace(',0', '') + 'k';
+  return fmt(Math.round(n));
 }
 function catById(id) {
   for (var i = 0; i < state.categories.length; i++)
@@ -1237,10 +1267,14 @@ function dayLabel(offsetFromToday) {
   return d.getDate() + '/' + (d.getMonth() + 1);
 }
 
-/* Linha/área: values[0] = dia mais antigo ... último = hoje */
-function renderLineChart(containerId, values) {
+/* Linha/área: values[0] = dia mais antigo ... último = hoje.
+   opts = { unit: 'visualizações'|'vendas'|..., money: bool } */
+function renderLineChart(containerId, values, opts) {
+  opts = opts || {};
+  var unit = opts.unit || 'visualizações';
+  var money = !!opts.money;
   var el = document.getElementById(containerId);
-  var W = 820, H = 240, padL = 44, padR = 14, padT = 14, padB = 30;
+  var W = 820, H = 240, padL = money ? 58 : 44, padR = 14, padT = 14, padB = 30;
   var n = values.length;
   var max = niceMax(Math.max.apply(null, values.concat([1])));
   var iw = W - padL - padR, ih = H - padT - padB;
@@ -1251,7 +1285,7 @@ function renderLineChart(containerId, values) {
   for (var g = 0; g <= 3; g++) {
     var gv = max * g / 3, gy = y(gv);
     grid += '<line x1="' + padL + '" y1="' + gy + '" x2="' + (W - padR) + '" y2="' + gy + '" stroke="#232323" stroke-width="1"/>';
-    ylab += '<text x="' + (padL - 8) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="11" fill="#7A7A7A">' + fmt(Math.round(gv)) + '</text>';
+    ylab += '<text x="' + (padL - 8) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="11" fill="#7A7A7A">' + (money ? 'R$ ' + fmtCompact(gv) : fmtCompact(gv)) + '</text>';
   }
   var xlab = '', step = Math.ceil(n / 7);
   for (var i = 0; i < n; i += step) {
@@ -1263,7 +1297,7 @@ function renderLineChart(containerId, values) {
   var area = line + ' L' + x(n - 1).toFixed(1) + ',' + (padT + ih) + ' L' + x(0).toFixed(1) + ',' + (padT + ih) + ' Z';
 
   el.innerHTML =
-    '<svg class="chart-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Gráfico de cliques por dia">' +
+    '<svg class="chart-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Gráfico de ' + esc(unit) + ' por dia">' +
       '<defs><linearGradient id="areaGrad-' + containerId + '" x1="0" y1="0" x2="0" y2="1">' +
         '<stop offset="0%" stop-color="#B4FF39" stop-opacity="0.22"/>' +
         '<stop offset="100%" stop-color="#B4FF39" stop-opacity="0"/>' +
@@ -1291,7 +1325,7 @@ function renderLineChart(containerId, values) {
     var cx = x(idx), cy = y(values[idx]);
     xhLine.setAttribute('x1', cx); xhLine.setAttribute('x2', cx); xhLine.setAttribute('opacity', 1);
     xhDot.setAttribute('cx', cx); xhDot.setAttribute('cy', cy); xhDot.setAttribute('opacity', 1);
-    tip.innerHTML = '<span class="tip-date">' + dayLabel(n - 1 - idx) + '</span><b>' + fmt(values[idx]) + '</b> cliques';
+    tip.innerHTML = '<span class="tip-date">' + dayLabel(n - 1 - idx) + '</span><b>' + (money ? fmtBRL(values[idx]) : fmt(values[idx])) + '</b>' + (money ? '' : ' ' + esc(unit));
     tip.style.left = (cx / W * rect.width) + 'px';
     tip.style.top = (cy / H * rect.height) + 'px';
     tip.style.opacity = 1;
@@ -1302,8 +1336,13 @@ function renderLineChart(containerId, values) {
   });
 }
 
-/* Barras horizontais: items = [{emoji, label, value, tip}] */
-function renderHBars(containerId, items) {
+/* Barras horizontais: items = [{emoji, label, value, tip}]
+   opts = { unit: 'vendas'|..., money: bool } */
+function renderHBars(containerId, items, opts) {
+  opts = opts || {};
+  var unit = opts.unit || '';
+  var money = !!opts.money;
+  function fmtVal(v) { return money ? fmtBRL(v) : fmt(v); }
   var el = document.getElementById(containerId);
   if (!items.length) {
     el.innerHTML = '<div class="empty-state" style="padding:24px;"><div>Sem dados no período.</div></div>';
@@ -1312,10 +1351,10 @@ function renderHBars(containerId, items) {
   var max = Math.max.apply(null, items.map(function (i) { return i.value; }).concat([1]));
   el.innerHTML = items.map(function (it) {
     var w = Math.max(1, (it.value / max) * 100);
-    return '<div class="hbar-row" data-tip="' + esc(it.tip || (it.label + ' — ' + fmt(it.value) + ' cliques')) + '">' +
+    return '<div class="hbar-row" data-tip="' + esc(it.tip || (it.label + ' — ' + fmtVal(it.value) + (unit ? ' ' + unit : ''))) + '">' +
       '<span class="hbar-label">' + esc(it.emoji ? it.emoji + ' ' : '') + esc(it.label) + '</span>' +
       '<span class="hbar-track"><span class="hbar-fill" style="width:' + w.toFixed(1) + '%"></span></span>' +
-      '<span class="hbar-val">' + fmt(it.value) + '</span>' +
+      '<span class="hbar-val">' + fmtVal(it.value) + '</span>' +
     '</div>';
   }).join('');
 }
@@ -1323,39 +1362,38 @@ function renderHBars(containerId, items) {
 /* ==========================================================================
    RENDER — Dashboard
    ========================================================================== */
+function deltaHtml(cur, prev, suffix) {
+  suffix = suffix || 'vs. semana anterior';
+  if (prev <= 0) return cur > 0 ? '<span class="up">novo</span> ' + suffix : 'sem base de comparação';
+  var p = Math.round((cur - prev) / prev * 100);
+  return (p >= 0 ? '<span class="up">▲ ' + p + '%</span>' : '<span class="down">▼ ' + Math.abs(p) + '%</span>') + ' ' + suffix;
+}
 function renderDashboard() {
-  var actives = state.offers.filter(function (o) { return statusOf(o) === 'ativa'; });
-  var al = alertOffers();
-  var c7 = state.offers.reduce(function (s, o) { return s + sumLast(o, 7); }, 0);
-  var cPrev7 = state.offers.reduce(function (s, o) {
-    return s + o.clicks.days.slice(-14, -7).reduce(function (a, b) { return a + b; }, 0);
-  }, 0);
-  var deltaPct = cPrev7 > 0 ? Math.round((c7 - cPrev7) / cPrev7 * 100) : 0;
-  var top = state.offers.slice().sort(function (a, b) { return sumLast(b, 7) - sumLast(a, 7); })[0];
+  var views7 = totalMetric('views', 7), viewsPrev = totalMetricPrev('views');
+  var checkouts7 = totalMetric('checkouts', 7), checkoutsPrev = totalMetricPrev('checkouts');
+  var sales7 = totalMetric('sales', 7), salesPrev = totalMetricPrev('sales');
+  var rev7 = totalMetric('revenue', 7), revPrev = totalMetricPrev('revenue');
+  var convRate = views7 > 0 ? (sales7 / views7 * 100) : 0;
 
   document.getElementById('dashStats').innerHTML =
-    statTile('Ofertas ativas', fmt(actives.length), 'de ' + fmt(state.offers.length) + ' cadastradas',
-      '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0l-8-8V3h9.6l8 8a2 2 0 0 1 .4 2.4z"/>') +
-    statTile('Cliques (7 dias)', fmt(c7),
-      deltaPct >= 0
-        ? '<span class="up">▲ ' + deltaPct + '%</span> vs semana anterior'
-        : '<span class="down">▼ ' + Math.abs(deltaPct) + '%</span> vs semana anterior',
-      '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>') +
-    statTile('Alertas ativos', fmt(al.dead.length + al.warn.length),
-      fmt(al.dead.length) + ' expiradas · ' + fmt(al.warn.length) + ' expirando',
-      '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>') +
-    statTile('Oferta destaque', top ? fmt(sumLast(top, 7)) : '0',
-      top ? esc(top.emoji + ' ' + top.title.slice(0, 34) + (top.title.length > 34 ? '…' : '')) : 'Cadastre sua primeira oferta',
-      '<path d="M12 2l2.4 4.9 5.4.8-3.9 3.8.9 5.4-4.8-2.5-4.8 2.5.9-5.4L4.2 7.7l5.4-.8z"/>');
+    statTile('Visualizações (7 dias)', fmt(views7), deltaHtml(views7, viewsPrev),
+      '<circle cx="12" cy="12" r="3"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>') +
+    statTile('Checkouts (7 dias)', fmt(checkouts7), deltaHtml(checkouts7, checkoutsPrev),
+      '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/>') +
+    statTile('Vendas (7 dias)', fmt(sales7),
+      deltaHtml(sales7, salesPrev) + ' · ' + convRate.toFixed(1).replace('.', ',') + '% de conversão',
+      '<path d="M20 6 9 17l-5-5"/>') +
+    statTile('Faturamento (7 dias)', fmtBRL(rev7), deltaHtml(rev7, revPrev),
+      '<path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>');
 
-  var series = aggSeries(state.offers, 14);
-  renderLineChart('dashLineChart', series);
+  var series = aggSeries(state.offers, 14, 'revenue');
+  renderLineChart('dashLineChart', series, { unit: 'faturamento', money: true });
 
   var tops = state.offers.slice()
-    .sort(function (a, b) { return sumLast(b, 7) - sumLast(a, 7); })
+    .sort(function (a, b) { return sumRevenue(b, 7) - sumRevenue(a, 7); })
     .slice(0, 5)
-    .map(function (o) { return { emoji: o.emoji, label: o.title, value: sumLast(o, 7) }; });
-  renderHBars('dashTopBars', tops);
+    .map(function (o) { return { emoji: o.emoji, label: o.title, value: sumRevenue(o, 7) }; });
+  renderHBars('dashTopBars', tops, { money: true });
 
   var recent = state.offers.slice()
     .sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); })
@@ -1373,12 +1411,17 @@ function statTile(label, value, delta, iconPath) {
   '</div>';
 }
 
-function aggSeries(offers, n) {
+function aggSeries(offers, n, metric) {
+  metric = metric || 'views';
+  var key = metric === 'revenue' ? 'sales' : metric;
   var out = [];
   for (var i = 0; i < n; i++) out.push(0);
   offers.forEach(function (o) {
-    var d = o.clicks.days.slice(-n);
-    d.forEach(function (v, i) { out[i + (n - d.length)] += v; });
+    var s = o.funnel && o.funnel[key];
+    if (!s || !s.days) return;
+    var mult = metric === 'revenue' ? (o.price || 0) : 1;
+    var d = s.days.slice(-n);
+    d.forEach(function (v, i) { out[i + (n - d.length)] += v * mult; });
   });
   return out;
 }
@@ -1393,7 +1436,7 @@ function offerRow(o, compact) {
   var actions = compact ? '' :
     '<div class="offer-actions">' +
       '<button class="btn btn-sm btn-icon" data-tip="Copiar link" onclick="copyLink(\'' + o.id + '\')">📋</button>' +
-      '<button class="btn btn-sm btn-icon" data-tip="Abrir oferta (registra 1 clique)" onclick="openOffer(\'' + o.id + '\')">↗</button>' +
+      '<button class="btn btn-sm btn-icon" data-tip="Abrir página (registra 1 visualização)" onclick="openOffer(\'' + o.id + '\')">↗</button>' +
       '<button class="btn btn-sm btn-icon" data-tip="Editar" onclick="openOfferModal(\'' + o.id + '\')">✏️</button>' +
       (st === 'expirada'
         ? '<button class="btn btn-sm btn-icon" data-tip="Reativar oferta" onclick="reactivateOffer(\'' + o.id + '\')">↻</button>'
@@ -1411,7 +1454,7 @@ function offerRow(o, compact) {
         (o.oldPrice ? '<span class="old-price">' + fmtBRL(o.oldPrice) + '</span>' : '') +
       '</div>' +
     '</div>' +
-    '<div class="offer-clicks"><b>' + fmt(sumLast(o, 7)) + '</b><span>cliques 7d</span></div>' +
+    '<div class="offer-clicks"><b>' + fmtBRL(sumRevenue(o, 7)) + '</b><span>' + fmt(sumSales(o, 7)) + ' vendas · 7d</span></div>' +
     '<span class="badge ' + meta.cls + '">' + meta.label + '</span>' +
     actions +
   '</div>';
@@ -1433,7 +1476,8 @@ function renderOfertas() {
     if (st && statusOf(o) !== st) return false;
     return true;
   });
-  if (sort === 'clicks') list.sort(function (a, b) { return sumLast(b, 7) - sumLast(a, 7); });
+  if (sort === 'revenue') list.sort(function (a, b) { return sumRevenue(b, 7) - sumRevenue(a, 7); });
+  else if (sort === 'sales') list.sort(function (a, b) { return sumSales(b, 7) - sumSales(a, 7); });
   else if (sort === 'price') list.sort(function (a, b) { return a.price - b.price; });
   else list.sort(function (a, b) { return new Date(b.createdAt) - new Date(a.createdAt); });
 
@@ -1477,9 +1521,11 @@ function copyLink(id) {
 function openOffer(id) {
   var o = findOffer(id);
   if (!o) return;
-  o.clicks.days[o.clicks.days.length - 1]++;
+  if (!o.funnel) o.funnel = emptyFunnel();
+  var vs = o.funnel.views.days;
+  vs[vs.length - 1]++;
   save(); renderCurrent();
-  toast('+1 clique registrado em "' + o.title.slice(0, 34) + '…"');
+  toast('+1 visualização registrada em "' + o.title.slice(0, 34) + '…"');
   window.open(o.url, '_blank');
 }
 function expireOffer(id) {
@@ -1653,35 +1699,40 @@ function renderRelatorios() {
   document.getElementById('reportTopSub').textContent = subTxt;
   document.getElementById('reportTableSub').textContent = subTxt;
 
-  renderLineChart('reportLineChart', aggSeries(offers, reportDays));
+  renderLineChart('reportLineChart', aggSeries(offers, reportDays, 'revenue'), { unit: 'faturamento', money: true });
 
   var byCat = state.categories.map(function (c) {
     var v = offers.filter(function (o) { return o.category === c.id; })
-      .reduce(function (s, o) { return s + sumLast(o, reportDays); }, 0);
+      .reduce(function (s, o) { return s + sumRevenue(o, reportDays); }, 0);
     return { emoji: c.emoji, label: c.name, value: v };
   }).filter(function (i) { return i.value > 0; })
     .sort(function (a, b) { return b.value - a.value; });
-  renderHBars('reportCatBars', byCat);
+  renderHBars('reportCatBars', byCat, { money: true });
 
   var tops = offers.slice()
-    .sort(function (a, b) { return sumLast(b, reportDays) - sumLast(a, reportDays); })
+    .sort(function (a, b) { return sumRevenue(b, reportDays) - sumRevenue(a, reportDays); })
     .slice(0, 8)
-    .map(function (o) { return { emoji: o.emoji, label: o.title, value: sumLast(o, reportDays) }; });
-  renderHBars('reportTopBars', tops);
+    .map(function (o) { return { emoji: o.emoji, label: o.title, value: sumRevenue(o, reportDays) }; });
+  renderHBars('reportTopBars', tops, { money: true });
 
   var rows = offers.slice()
-    .sort(function (a, b) { return sumLast(b, reportDays) - sumLast(a, reportDays); })
+    .sort(function (a, b) { return sumRevenue(b, reportDays) - sumRevenue(a, reportDays); })
     .map(function (o) {
       var st = STATUS_META[statusOf(o)];
       return '<tr><td>' + esc(o.emoji + ' ' + o.title) + '</td>' +
         '<td>' + esc(catById(o.category).name) + '</td>' +
         '<td>' + esc(o.store) + '</td>' +
         '<td><span class="badge ' + st.cls + '">' + st.label + '</span></td>' +
-        '<td class="num">' + fmt(sumLast(o, reportDays)) + '</td></tr>';
+        '<td class="num">' + fmt(sumViews(o, reportDays)) + '</td>' +
+        '<td class="num">' + fmt(sumCheckouts(o, reportDays)) + '</td>' +
+        '<td class="num">' + fmt(sumSales(o, reportDays)) + '</td>' +
+        '<td class="num">' + fmtBRL(sumRevenue(o, reportDays)) + '</td></tr>';
     }).join('');
   document.getElementById('reportTableEl').innerHTML =
-    '<thead><tr><th>Oferta</th><th>Categoria</th><th>Loja</th><th>Status</th><th style="text-align:right;">Cliques</th></tr></thead>' +
-    '<tbody>' + (rows || '<tr><td colspan="5">Sem dados no período.</td></tr>') + '</tbody>';
+    '<thead><tr><th>Oferta</th><th>Categoria</th><th>Loja</th><th>Status</th>' +
+      '<th style="text-align:right;">Visualizações</th><th style="text-align:right;">Checkouts</th>' +
+      '<th style="text-align:right;">Vendas</th><th style="text-align:right;">Faturamento</th></tr></thead>' +
+    '<tbody>' + (rows || '<tr><td colspan="8">Sem dados no período.</td></tr>') + '</tbody>';
 }
 function toggleTableView() {
   tableView = !tableView;
@@ -1727,7 +1778,7 @@ function importData(ev) {
       var data = JSON.parse(reader.result);
       if (!data.offers || !data.categories || !data.settings) throw new Error('formato');
       state = data;
-      normalizeClicks(); save();
+      normalizeFunnel(); save();
       fillCatSelects(); applySettings(); renderCurrent(); updateAlertBadge();
       toast('Dados importados com sucesso. ✅');
     } catch (e) {
@@ -1850,7 +1901,7 @@ function saveOffer() {
       id: uid(),
       createdAt: new Date().toISOString(),
       manualExpired: false,
-      clicks: { days: Array.apply(null, Array(HISTORY_DAYS)).map(function () { return 0; }), last: localISO() }
+      funnel: emptyFunnel()
     };
     Object.keys(data).forEach(function (k) { novo[k] = data[k]; });
     state.offers.unshift(novo);
@@ -1899,7 +1950,7 @@ function utmLink(o) {
 var SLOT_POOLS = {
   hero_pill: function (o) {
     return [
-      '🔥 ' + fmt(sumLast(o, 7)) + ' pessoas clicaram nessa oferta nos últimos 7 dias.',
+      '🔥 ' + fmt(sumViews(o, 7)) + ' visualizações da página nos últimos 7 dias.',
       '⚡ Preço verificado pelo Radar há menos de 24h — desconto real, não maquiado.',
       '✅ Link testado e ativo — pode clicar sem medo.'
     ];
@@ -1999,7 +2050,11 @@ function sparkleSec(btn, offerId, sec) {
         bumpVar(o, s);
       });
     } else {
-      if (o.copyLists) delete o.copyLists[sec];
+      if (o.copyLists) {
+        Object.keys(o.copyLists).forEach(function (k) {
+          if (k === sec || k.indexOf(sec + '_') === 0) delete o.copyLists[k];
+        });
+      }
       if (o.copy) {
         Object.keys(o.copy).forEach(function (k) {
           if (k.indexOf(sec + '_') === 0) delete o.copy[k];
@@ -2010,6 +2065,10 @@ function sparkleSec(btn, offerId, sec) {
         bumpVar(o, 'stack');
       }
       bumpVar(o, sec);
+      /* seções com sub-colunas (ex.: público) variam cada coluna */
+      Object.keys(LIST_POOLS).forEach(function (k) {
+        if (k.indexOf(sec + '_') === 0) bumpVar(o, k);
+      });
     }
     save();
     var body = document.getElementById('secbody-' + sec);
@@ -2043,14 +2102,17 @@ function editableRows(o, sec, opts) {
   return '<div class="list-rows">' + rows + '</div>' +
     '<button class="add-row" onclick="addListItem(\'' + o.id + '\', \'' + sec + '\')">＋ Adicionar</button>';
 }
+/* algumas seções (ex.: público) têm listas em sub-colunas "sec_coluna"; a seção renderizada é a raiz */
+function rootSec(sec) { return sec.indexOf('_') > -1 ? sec.split('_')[0] : sec; }
 function addListItem(oid, sec) {
   var o = findOffer(oid);
   if (!o) return;
   materializeList(o, sec);
   o.copyLists[sec].push('Novo item — clique para editar');
   save();
-  var body = document.getElementById('secbody-' + sec);
-  if (body) body.innerHTML = SEC_BODIES[sec](o);
+  var root = rootSec(sec);
+  var body = document.getElementById('secbody-' + root);
+  if (body) body.innerHTML = SEC_BODIES[root](o);
   var rows = body ? body.querySelectorAll('[data-list="' + sec + '"]') : [];
   var last = rows[rows.length - 1];
   if (last) {
@@ -2064,8 +2126,9 @@ function delListItem(oid, sec, idx) {
   materializeList(o, sec);
   o.copyLists[sec].splice(idx, 1);
   save();
-  var body = document.getElementById('secbody-' + sec);
-  if (body) body.innerHTML = SEC_BODIES[sec](o);
+  var root = rootSec(sec);
+  var body = document.getElementById('secbody-' + root);
+  if (body) body.innerHTML = SEC_BODIES[root](o);
   toast('Item removido.', 'warn');
 }
 
@@ -2126,7 +2189,7 @@ var LIST_POOLS = {
       ]
     ];
   },
-  publico: function (o) {
+  publico_sim: function (o) {
     var cat = catById(o.category);
     var p = discountPct(o) || 10;
     if (o.category === 'saude') return [
@@ -2153,6 +2216,34 @@ var LIST_POOLS = {
         'Para quem perdeu a última oferta-relâmpago e não quer repetir a dose.',
         'Para quem pesquisa preço antes de comprar — a pesquisa já foi feita por você.',
         'Para quem compra com propósito: ' + p + '% OFF em algo que já estava na lista.'
+      ]
+    ];
+  },
+  publico_nao: function (o) {
+    if (o.category === 'saude') return [
+      [
+        'Não é para quem busca pílula mágica e não quer mudar nenhum hábito.',
+        'Não é para quem quer resultado sem seguir o passo a passo.',
+        'Não é para quem já tem acompanhamento nutricional individual.',
+        'Não é para quem desiste na primeira semana difícil.'
+      ],
+      [
+        'Não é para quem quer dieta radical que dura poucos dias.',
+        'Não é para quem não vai dedicar alguns minutos por dia ao método.',
+        'Não é para quem procura solução sem nenhum acompanhamento.'
+      ]
+    ];
+    return [
+      [
+        'Não é para quem compra por impulso algo que não precisa.',
+        'Não é para quem procura o menor preço a qualquer custo, mesmo sem garantia.',
+        'Não é para quem deixa pra decidir depois e reclama que esgotou.',
+        'Não é para quem ignora a validade e perde a janela do desconto.'
+      ],
+      [
+        'Não é para quem já tem o produto e não faz falta outro.',
+        'Não é para quem compra sem conferir se a loja é confiável.',
+        'Não é para quem quer parcelar em 12x algo fora do orçamento.'
       ]
     ];
   },
@@ -2285,7 +2376,7 @@ function bodyHero(o) {
     '<div class="sec-neon editable" data-tip="Clique para editar o título da oferta"' + edAttr(o, 'title') + '>' + esc(o.title) + '</div>' +
     '<div class="sec-meta" style="margin:6px 0 16px;">Na ' + esc(o.store) + ' · ' + esc(cat.emoji + ' ' + cat.name) + ' · por tempo limitado</div>' +
     '<div class="slot-row"><div class="slot-content"><div class="sec-lead editable" id="slot-hero_lead"' + edAttr(o, 'hero_lead') + '>' + esc(slotTxt(o, 'hero_lead', SLOT_POOLS.hero_lead(o))) + '</div></div>' + aiBtn(o.id, 'hero_lead') + '</div>' +
-    '<div class="slot-row"><div class="slot-content"><button class="btn btn-primary" id="slot-hero_cta" style="padding:16px 30px;font-size:0.95rem;font-weight:800;letter-spacing:0.02em;" onclick="openOffer(\'' + o.id + '\')">' + esc(slotTxt(o, 'hero_cta', SLOT_POOLS.hero_cta(o))) + '</button></div>' + aiBtn(o.id, 'hero_cta') + '</div>';
+    '<div class="slot-row"><div class="slot-content"><button class="btn btn-primary editable" id="slot-hero_cta" style="padding:16px 30px;font-size:0.95rem;font-weight:800;letter-spacing:0.02em;" data-tip="Clique para editar o texto do botão"' + edAttr(o, 'hero_cta') + '>' + esc(slotTxt(o, 'hero_cta', SLOT_POOLS.hero_cta(o))) + '</button></div>' + aiBtn(o.id, 'hero_cta') + '</div>';
 }
 function bodyPromessa(o) {
   return edH2(o, 'promessa_h2', 'Essa oferta vale a pena inclusive se...') + editableRows(o, 'promessa');
@@ -2294,7 +2385,21 @@ function bodyMecanismo(o) {
   return edH2(o, 'mecanismo_h2', 'Radar de Consistência e Conversão') + editableRows(o, 'mecanismo');
 }
 function bodyPublico(o) {
-  return edH2(o, 'publico_h2', 'Para quem é essa oferta') + editableRows(o, 'publico');
+  var closeDef = o.category === 'saude'
+    ? 'Se você se identificou, já está pronto para parar de tentar sozinho e começar com método.'
+    : 'Se você se identificou, essa oferta foi feita para você — clique com clareza, não no impulso.';
+  var closeTxt = (o.copy && o.copy.publico_close != null) ? o.copy.publico_close : closeDef;
+  return '<div class="publico-cols">' +
+      '<div class="publico-col publico-col-yes">' +
+        '<div class="publico-col-head yes"><span class="ico">✓</span> Para quem é</div>' +
+        editableRows(o, 'publico_sim') +
+      '</div>' +
+      '<div class="publico-col publico-col-no">' +
+        '<div class="publico-col-head no"><span class="ico">✕</span> Para quem não é</div>' +
+        editableRows(o, 'publico_nao') +
+      '</div>' +
+    '</div>' +
+    '<div class="publico-close editable"' + edAttr(o, 'publico_close') + '>' + esc(closeTxt) + '</div>';
 }
 function bodyPassos(o) {
   return edH2(o, 'passos_h2', 'Como aproveitar em 4 passos') + editableRows(o, 'passos', { numbered: true });
@@ -2328,8 +2433,8 @@ function bodyPreco(o) {
   return '' +
     /* ancoragem: preço antigo riscado + preço atual + parcelas */
     '<div class="price-center">' +
-      (o.oldPrice ? '<div class="sec-meta" style="text-decoration:line-through;">De ' + fmtBRL(o.oldPrice) + '</div>' : '') +
-      '<div class="price-big">' + fmtBRL(o.price) + (p ? ' <span class="badge badge-live" style="vertical-align:middle;">' + p + '% OFF</span>' : '') + '</div>' +
+      (o.oldPrice ? '<div class="sec-meta" style="text-decoration:line-through;">De <span class="editable"' + edAttr(o, '__oldprice') + '>' + fmtBRL(o.oldPrice) + '</span></div>' : '') +
+      '<div class="price-big"><span class="editable"' + edAttr(o, '__price') + '>' + fmtBRL(o.price) + '</span>' + (p ? ' <span class="badge badge-live" style="vertical-align:middle;">' + p + '% OFF</span>' : '') + '</div>' +
       '<div class="slot-row" style="justify-content:center;margin-bottom:0;"><div class="slot-content" style="flex:0 1 auto;"><div class="sec-meta editable" id="slot-preco_parcelas"' + edAttr(o, 'preco_parcelas') + '>' + esc(slotTxt(o, 'preco_parcelas', SLOT_POOLS.preco_parcelas(o))) + '</div></div>' + aiBtn(o.id, 'preco_parcelas') + '</div>' +
     '</div>' +
     /* minimização do preço + frase de investimento */
@@ -2342,7 +2447,7 @@ function bodyPreco(o) {
     /* escassez */
     '<div class="slot-row" style="margin-top:14px;"><div class="slot-content"><div class="scarcity-bar editable" id="slot-preco_scarcity"' + edAttr(o, 'preco_scarcity') + '>' + esc(slotTxt(o, 'preco_scarcity', SLOT_POOLS.preco_scarcity(o))) + '</div></div>' + aiBtn(o.id, 'preco_scarcity') + '</div>' +
     /* CTA gigante centralizado */
-    '<div class="slot-row" style="justify-content:center;margin-top:18px;"><div class="slot-content" style="flex:0 1 auto;text-align:center;"><button class="btn btn-primary" id="slot-preco_cta" style="padding:18px 40px;font-size:1.05rem;font-weight:800;letter-spacing:0.02em;" onclick="openOffer(\'' + o.id + '\')">' + esc(slotTxt(o, 'preco_cta', SLOT_POOLS.preco_cta(o))) + '</button></div>' + aiBtn(o.id, 'preco_cta') + '</div>' +
+    '<div class="slot-row" style="justify-content:center;margin-top:18px;"><div class="slot-content" style="flex:0 1 auto;text-align:center;"><button class="btn btn-primary editable" id="slot-preco_cta" style="padding:18px 40px;font-size:1.05rem;font-weight:800;letter-spacing:0.02em;" data-tip="Clique para editar o texto do botão"' + edAttr(o, 'preco_cta') + '>' + esc(slotTxt(o, 'preco_cta', SLOT_POOLS.preco_cta(o))) + '</button></div>' + aiBtn(o.id, 'preco_cta') + '</div>' +
     '<div class="sec-meta" style="text-align:center;margin-top:12px;font-size:0.72rem;">Link rastreado e monitorado pelo Radar · preço sujeito a alteração pela loja</div>';
 }
 function bodyFechamento(o) {
@@ -2420,17 +2525,16 @@ function detailBodyHtml(o) {
     '</div>';
   }
   if (detailTab === 'funil') {
-    var c30 = sumLast(o, 30);
-    var imp = c30 * 9;
-    var conv = Math.round(c30 * 0.04);
-    var comm = conv * o.price * 0.08;
+    var v30 = sumViews(o, 30), co30 = sumCheckouts(o, 30), s30 = sumSales(o, 30), rev30 = sumRevenue(o, 30);
+    var cvView = v30 > 0 ? (s30 / v30 * 100) : 0;
+    var cvCheck = co30 > 0 ? (s30 / co30 * 100) : 0;
     return '<div class="stats-grid">' +
-      statTile('Impressões estimadas', fmt(imp), 'alcance estimado das postagens', '<circle cx="12" cy="12" r="3"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>') +
-      statTile('Cliques no link', fmt(c30), 'registrados nos últimos 30 dias', '<path d="M9 9l10.5 3.5L15 15l-2.5 4.5z"/><path d="M3.6 3.6 8 8"/>') +
-      statTile('Conversões estimadas', fmt(conv), 'taxa média de 4% do nicho', '<path d="M20 6 9 17l-5-5"/>') +
-      statTile('Comissão estimada', fmtBRL(comm), 'comissão média de 8% sobre o preço', '<path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>') +
+      statTile('Visualizações', fmt(v30), 'da página nos últimos 30 dias', '<circle cx="12" cy="12" r="3"/><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>') +
+      statTile('Checkouts', fmt(co30), (v30 > 0 ? (co30 / v30 * 100).toFixed(1).replace('.', ',') + '% das visualizações' : '—'), '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/>') +
+      statTile('Vendas', fmt(s30), cvCheck.toFixed(1).replace('.', ',') + '% dos checkouts', '<path d="M20 6 9 17l-5-5"/>') +
+      statTile('Faturamento', fmtBRL(rev30), fmtBRL(o.price) + ' por venda', '<path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>') +
     '</div>' +
-    '<div class="card"><h3>Funil da oferta</h3><p class="card-sub">Últimos 30 dias — impressões e conversões são estimativas com taxas médias do nicho de achadinhos</p><div class="hbars" id="funnelBars"></div></div>';
+    '<div class="card"><h3>Funil da oferta</h3><p class="card-sub">Últimos 30 dias · conversão visualização→venda de ' + cvView.toFixed(1).replace('.', ',') + '%</p><div class="hbars" id="funnelBars"></div></div>';
   }
   if (detailTab === 'relacionadas') {
     var cat = catById(o.category);
@@ -2457,8 +2561,8 @@ function detailBodyHtml(o) {
         (sub ? '<span style="display:block;margin-top:2px;font-size:0.7rem;">' + sub + '</span>' : '') + '</div>' +
         '<button class="btn btn-sm" data-copy="' + esc(url) + '">📋 Copiar</button></div>';
     }
-    return '<div class="card"><h3>Links da oferta</h3><p class="card-sub">Use sempre o link rastreado nas postagens — é ele que alimenta o relatório de cliques.</p>' +
-      linkRow('🔗 Link rastreado (recomendado)', 'Cliques contabilizados no painel + monitorado pelo Radar', trackedLink(o)) +
+    return '<div class="card"><h3>Links da oferta</h3><p class="card-sub">Use sempre o link rastreado nas postagens — é ele que alimenta o relatório de vendas.</p>' +
+      linkRow('🔗 Link rastreado (recomendado)', 'Visualizações, checkouts e vendas contabilizados no painel + monitorado pelo Radar', trackedLink(o)) +
       linkRow('🌐 Link original', '', o.url) +
       linkRow('📊 Link com UTM', 'Para cruzar com o Google Analytics / relatórios da loja', utmLink(o)) +
     '</div>';
@@ -2489,7 +2593,7 @@ function renderOfertaDetail() {
         '<h1>' + esc(o.title) + ' <span class="badge ' + st.cls + '">' + st.label + '</span></h1>' +
         '<p>' + esc(cat.emoji + ' ' + cat.name) + ' · ' + esc(o.store) + ' · ' + fmtBRL(o.price) +
           (o.oldPrice ? ' <s>' + fmtBRL(o.oldPrice) + '</s>' : '') +
-          ' · ' + fmt(sumLast(o, 30)) + ' cliques em 30 dias</p>' +
+          ' · ' + fmt(sumSales(o, 30)) + ' vendas · ' + fmtBRL(sumRevenue(o, 30)) + ' em 30 dias</p>' +
       '</div>' +
       '<div class="detail-actions">' +
         '<button class="icon-btn" data-tip="Editar oferta" onclick="openOfferModal(\'' + o.id + '\')">✏️</button>' +
@@ -2503,11 +2607,10 @@ function renderOfertaDetail() {
 
   if (detailTab === 'preview') setupSecObserver();
   if (detailTab === 'funil') {
-    var c30 = sumLast(o, 30);
     renderHBars('funnelBars', [
-      { emoji: '👀', label: 'Impressões estimadas', value: c30 * 9 },
-      { emoji: '👆', label: 'Cliques no link', value: c30 },
-      { emoji: '🛒', label: 'Conversões estimadas', value: Math.round(c30 * 0.04) }
+      { emoji: '👀', label: 'Visualizações da página', value: sumViews(o, 30) },
+      { emoji: '🛒', label: 'Checkouts iniciados', value: sumCheckouts(o, 30) },
+      { emoji: '✅', label: 'Vendas concluídas', value: sumSales(o, 30) }
     ]);
   }
 }
@@ -2540,8 +2643,6 @@ function setupSecObserver() {
 var VIEWS = {
   dashboard: renderDashboard,
   ofertas: renderOfertas,
-  categorias: renderCategorias,
-  alertas: renderAlertas,
   relatorios: renderRelatorios,
   config: renderConfig,
   oferta: renderOfertaDetail
@@ -2575,10 +2676,13 @@ function updateAlertBadge() {
   var al = alertOffers();
   var n = al.dead.length + al.warn.length;
   var b = document.getElementById('alertBadge');
-  b.textContent = n;
-  b.classList.toggle('zero', n === 0);
-  document.getElementById('radarStatusTxt').textContent =
-    n ? n + ' alerta(s) pendente(s)' : fmt(state.offers.length) + ' links saudáveis';
+  if (b) {
+    b.textContent = n;
+    b.classList.toggle('zero', n === 0);
+  }
+  var rst = document.getElementById('radarStatusTxt');
+  if (rst) rst.textContent =
+    n ? n + ' link(s) para revisar' : fmt(state.offers.length) + ' links saudáveis';
 }
 
 function toast(msg, type) {
@@ -2669,6 +2773,15 @@ document.addEventListener('focusout', function (e) {
     } else {
       el.textContent = o.title;
     }
+  } else if (slot === '__price' || slot === '__oldprice') {
+    var val = parseBRL(txt);
+    if (slot === '__price') {
+      if (val != null && val > 0 && val !== o.price) { o.price = val; save(); toast('💾 Preço atualizado.'); }
+    } else {
+      var nv = (val == null ? 0 : val);
+      if (nv !== o.oldPrice) { o.oldPrice = nv; save(); toast('💾 Preço "De" atualizado.'); }
+    }
+    if (currentView === 'oferta') renderOfertaDetail();
   } else if (slot) {
     o.copy = o.copy || {};
     if (o.copy[slot] !== txt) {
