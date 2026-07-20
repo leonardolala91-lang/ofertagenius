@@ -795,6 +795,31 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 .browser-viewport { position: relative; width: 100%; height: 540px; background: #fff; }
 .browser-viewport iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
+/* preview estilo Vercel: screenshot + metadados */
+.vpreview { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 22px; align-items: center; }
+.vpreview-thumb {
+  display: block; position: relative; aspect-ratio: 16 / 10; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 12px; background: #0A0A0A;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+}
+.vp-shot, .vp-live { position: absolute; inset: 0; }
+.vp-shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; opacity: 0; transition: opacity 0.4s ease; }
+.vp-shot.loaded img { opacity: 1; }
+.vp-loading, .vp-failed { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-mute); font-size: 0.8rem; }
+.vp-failed { display: none; }
+.vp-shot.loaded .vp-loading { display: none; }
+.vp-shot.failed .vp-loading { display: none; }
+.vp-shot.failed .vp-failed { display: flex; }
+.spinner-lg { width: 26px; height: 26px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
+.vp-live iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+.vpreview-side { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+.vp-status { display: inline-flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 700; color: var(--accent); }
+.vp-domain { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); text-decoration: none; word-break: break-all; }
+.vp-domain:hover { color: var(--accent); }
+.vp-source { font-size: 0.78rem; color: var(--text-mute); word-break: break-all; }
+.vp-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.vp-note { font-size: 0.72rem; color: var(--text-mute); margin-top: 4px; line-height: 1.5; }
+
 /* ----- cards de anúncio (criativos) ----- */
 .ad-card { background: var(--surface); border: 1px solid var(--border-soft); border-radius: var(--radius); padding: 20px; margin-bottom: 14px; }
 .ad-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
@@ -828,6 +853,7 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
   .dash-grid, .grid-2, .config-grid { grid-template-columns: 1fr; }
   .cat-grid { grid-template-columns: 1fr 1fr; }
   .detail-layout { grid-template-columns: 1fr; }
+  .vpreview { grid-template-columns: 1fr; }
   .publico-cols { grid-template-columns: 1fr; gap: 24px; }
   .sec-nav { position: static; flex-direction: row; flex-wrap: wrap; gap: 6px; }
   .sec-nav .nav-label { display: none; }
@@ -2704,24 +2730,54 @@ function bodyAtivos(o) {
   var pv = o.previewUrl != null ? o.previewUrl : (o.url || '');
   var preview = '<div class="card" style="margin-bottom:14px;">' +
     '<h3>Preview da Landing Page (funil)</h3>' +
-    '<p class="card-sub">Cole o link da página (presell, vendas, obrigado...) para visualizar o funil aqui dentro.</p>' +
+    '<p class="card-sub">Cole o link da página (presell, vendas, obrigado...) para gerar o preview.</p>' +
     '<div class="preview-urlbar">' +
       '<input type="url" id="previewUrlInput" value="' + esc(pv) + '" placeholder="https://sua-landing.com" onkeydown="if(event.key===\'Enter\'){event.preventDefault();loadPreview(\'' + o.id + '\');}">' +
       '<button class="btn btn-sm btn-primary" onclick="loadPreview(\'' + o.id + '\')">Carregar</button>' +
-      (pv ? '<a class="btn btn-sm" href="' + esc(pv) + '" target="_blank" rel="noopener">Abrir ↗</a>' : '') +
     '</div>' +
     (pv
-      ? '<div class="browser-mock">' +
-          '<div class="browser-bar"><i></i><i></i><i></i><span class="browser-url">' + esc(pv) + '</span></div>' +
-          '<div class="browser-viewport"><iframe src="' + esc(pv) + '" loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe></div>' +
-        '</div>' +
-        '<p class="card-sub" style="margin-top:10px;font-size:0.72rem;">Algumas plataformas (Hotmart, Kiwify, etc.) bloqueiam a exibição em preview por segurança. Se a área ficar em branco, use o botão "Abrir ↗".</p>'
+      ? vercelPreviewCard(o, pv)
       : '<div class="empty-state"><div class="big">🔗</div><b>Nenhum link ainda</b><div>Cole a URL acima e clique em Carregar.</div></div>') +
   '</div>';
   return preview +
     assetCard('Post para WhatsApp', 'Pronto para colar no grupo', assetWhats(o)) +
     assetCard('Story / Legenda Instagram', 'Curto e direto para stories', assetStory(o)) +
     assetCard('Post para Telegram', 'Formato de canal de cupons', assetTelegram(o));
+}
+function domainOf(u) {
+  try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return (u || '').replace(/^https?:\/\//, '').split('/')[0]; }
+}
+function screenshotUrl(u, w) {
+  return 'https://s.wordpress.com/mshots/v1/' + encodeURIComponent(u) + '?w=' + (w || 1280);
+}
+/* Card de preview no estilo Vercel: screenshot (funciona mesmo em sites que bloqueiam iframe) + metadados */
+function vercelPreviewCard(o, pv) {
+  var mode = o.previewMode || 'shot';
+  var dom = domainOf(pv);
+  var thumb = mode === 'live'
+    ? '<div class="vp-live"><iframe src="' + esc(pv) + '" loading="lazy" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-popups allow-forms"></iframe></div>'
+    : '<div class="vp-shot" id="vpShot">' +
+        '<div class="vp-loading"><span class="spinner-lg"></span><span class="vp-loading-txt">Gerando screenshot…</span></div>' +
+        '<img src="' + esc(screenshotUrl(pv, 1280)) + '" alt="preview de ' + esc(dom) + '" ' +
+          'onload="this.parentNode.classList.add(\'loaded\')" onerror="this.parentNode.classList.add(\'failed\')">' +
+        '<div class="vp-failed"><span>Não foi possível gerar a imagem.</span><a class="btn btn-sm" href="' + esc(pv) + '" target="_blank" rel="noopener">Abrir página ↗</a></div>' +
+      '</div>';
+  return '<div class="vpreview">' +
+    '<a class="vpreview-thumb" href="' + esc(pv) + '" target="_blank" rel="noopener" data-tip="Abrir página em nova aba">' + thumb + '</a>' +
+    '<div class="vpreview-side">' +
+      '<div class="vp-status"><span class="pulse-dot"></span> Pronto</div>' +
+      '<a class="vp-domain" href="' + esc(pv) + '" target="_blank" rel="noopener">' + esc(dom) + ' ↗</a>' +
+      '<div class="vp-source">' + esc(pv) + '</div>' +
+      '<div class="vp-actions">' +
+        '<a class="btn btn-sm btn-primary" href="' + esc(pv) + '" target="_blank" rel="noopener">Visitar</a>' +
+        (mode === 'shot' ? '<button class="btn btn-sm" onclick="refreshShot(\'' + o.id + '\')">↻ Atualizar</button>' : '') +
+        '<button class="btn btn-sm" onclick="togglePreviewMode(\'' + o.id + '\')">' + (mode === 'live' ? '🖼️ Ver screenshot' : '▶ Ver ao vivo') + '</button>' +
+      '</div>' +
+      '<p class="vp-note">' + (mode === 'live'
+        ? 'Modo ao vivo (iframe) — algumas plataformas (Hotmart, Kiwify) bloqueiam a exibição.'
+        : 'Screenshot gerada automaticamente. Na primeira vez pode levar alguns segundos — clique em ↻ Atualizar se ainda estiver carregando.') + '</p>' +
+    '</div>' +
+  '</div>';
 }
 function loadPreview(oid) {
   var o = findOffer(oid);
@@ -2730,9 +2786,23 @@ function loadPreview(oid) {
   if (url && !/^https?:\/\//i.test(url)) url = 'https://' + url;
   o.previewUrl = url;
   save();
-  var body = document.getElementById('detailBody');
-  if (body) body.innerHTML = detailBodyHtml(o);
+  refreshDetailBody(o);
   toast(url ? 'Preview carregado. 🖥️' : 'Link removido.', url ? undefined : 'warn');
+}
+function togglePreviewMode(oid) {
+  var o = findOffer(oid);
+  if (!o) return;
+  o.previewMode = (o.previewMode === 'live') ? 'shot' : 'live';
+  save();
+  refreshDetailBody(o);
+}
+function refreshShot(oid) {
+  var o = findOffer(oid);
+  var box = document.getElementById('vpShot');
+  if (!o || !box) return;
+  var img = box.querySelector('img');
+  box.classList.remove('loaded', 'failed');
+  img.src = screenshotUrl(o.previewUrl || o.url, 1280) + '&cb=' + Date.now();
 }
 
 /* ----- Aba Anúncios: criativos (CA01, CA02...) com gancho, corpo e CTA ----- */
@@ -3124,6 +3194,13 @@ function renderOfertaDetail() {
   if (detailTab === 'preview') setupSecObserver();
   if (detailTab === 'funil') {
     renderFunnelChart('funnelChart', funnelStages(o, 30));
+  }
+  if (detailTab === 'ativos') {
+    // mShots costuma devolver um placeholder na 1ª chamada; recarrega uma vez se ainda não pintou
+    setTimeout(function () {
+      var box = document.getElementById('vpShot');
+      if (box && !box.classList.contains('loaded') && !box.classList.contains('failed')) refreshShot(o.id);
+    }, 5000);
   }
 }
 function setDetailTab(t) {
