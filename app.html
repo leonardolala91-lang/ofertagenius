@@ -774,38 +774,15 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 .link-url { font-size: 0.8rem; color: var(--text-mute); word-break: break-all; padding: 2px 4px; }
 .link-url:empty::before { content: 'Cole o link aqui…'; color: var(--text-mute); opacity: 0.5; }
 
-/* ----- gráfico de funil (estilo UTMify) ----- */
-.funnel { display: flex; flex-direction: column; }
-.funnel-stage { padding: 4px 0; }
-.funnel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 9px; }
-.funnel-ico {
-  width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0;
-  background: var(--accent-dim); display: grid; place-items: center; font-size: 1rem;
+/* ----- gráfico de funil fluido (estilo UTMify) ----- */
+.funnel { display: block; }
+.funnel-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.funnel-info {
+  width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%;
+  border: 1px solid var(--border); color: var(--text-mute);
+  display: grid; place-items: center; font-size: 0.75rem; cursor: help;
 }
-.funnel-name { font-weight: 600; font-size: 0.92rem; flex: 1; min-width: 0; }
-.funnel-count { font-weight: 800; font-size: 1.05rem; letter-spacing: -0.02em; }
-.funnel-share {
-  font-size: 0.72rem; font-weight: 700; color: var(--text-mute);
-  min-width: 54px; text-align: right;
-}
-.funnel-bar-track {
-  height: 30px; background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border-soft); border-radius: 8px; overflow: hidden;
-}
-.funnel-bar {
-  height: 100%; border-radius: 7px; min-width: 6px;
-  background: linear-gradient(90deg, #7ecc1f 0%, var(--accent) 100%);
-  box-shadow: 0 0 16px var(--accent-glow);
-  transition: width 0.6s cubic-bezier(.2,.7,.2,1);
-}
-.funnel-drop {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 0 10px 46px; color: var(--text-mute); font-size: 0.78rem;
-}
-.funnel-drop .drop-line { flex: 1; height: 1px; background: var(--border-soft); }
-.funnel-drop .conv { color: var(--accent); font-weight: 800; }
-.funnel-drop .lost { color: var(--text-mute); }
-.funnel-drop .lost b { color: #E8785B; font-weight: 700; }
+.funnel-info:hover { color: var(--accent); border-color: var(--accent); }
 
 /* ============================ RESPONSIVO ============================ */
 @media (max-width: 1080px) {
@@ -2651,7 +2628,11 @@ function detailBodyHtml(o) {
       statTile('Vendas', fmt(s30), cvCheck.toFixed(1).replace('.', ',') + '% dos checkouts', '<path d="M20 6 9 17l-5-5"/>') +
       statTile('Faturamento', fmtBRL(rev30), fmtBRL(o.price) + ' por venda', '<path d="M12 2v20M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>') +
     '</div>' +
-    '<div class="card"><h3>Funil da oferta</h3><p class="card-sub">Últimos 30 dias · a jornada de cada lead, do anúncio à compra · conversão página→venda de ' + cvView.toFixed(1).replace('.', ',') + '%</p><div class="funnel" id="funnelChart"></div></div>';
+    '<div class="card">' +
+      '<div class="funnel-card-head"><h3>Funil de Conversão (Meta Ads)</h3>' +
+      '<span class="funnel-info" data-tip="Jornada do lead do clique à venda. % = participação em relação ao topo do funil. Cliques e Vendas Iniciadas são estimados enquanto não há integração com o gerenciador de anúncios.">ⓘ</span></div>' +
+      '<p class="card-sub">Últimos 30 dias · conversão página→venda de ' + cvView.toFixed(1).replace('.', ',') + '%</p>' +
+      '<div class="funnel" id="funnelChart"></div></div>';
   }
   if (detailTab === 'relacionadas') {
     var cat = catById(o.category);
@@ -2755,45 +2736,82 @@ function copyOfferLink(oid, id) {
   copyToClip(l.url, 'Link "' + l.label + '" copiado! 📋');
 }
 
-/* Gráfico de funil (estilo UTMify): etapas empilhadas + conversão/queda entre elas */
+/* Curva suave com tangentes horizontais (efeito de fita que incha) */
+function smoothPath(pts, cont) {
+  function f(n) { return (Math.round(n * 10) / 10); }
+  var d = cont ? '' : ('M' + f(pts[0][0]) + ',' + f(pts[0][1]));
+  for (var i = 1; i < pts.length; i++) {
+    var x0 = pts[i - 1][0], y0 = pts[i - 1][1], x1 = pts[i][0], y1 = pts[i][1];
+    var dx = (x1 - x0) * 0.5;
+    d += ' C' + f(x0 + dx) + ',' + f(y0) + ' ' + f(x1 - dx) + ',' + f(y1) + ' ' + f(x1) + ',' + f(y1);
+  }
+  return d;
+}
+
+/* Gráfico de funil fluido e horizontal (estilo UTMify) */
 function renderFunnelChart(containerId, stages) {
   var el = document.getElementById(containerId);
   if (!el) return;
-  var top = stages[0].value || 1;
-  el.innerHTML = stages.map(function (st, i) {
-    var out = '';
-    if (i > 0) {
-      var prev = stages[i - 1].value || 0;
-      var conv = prev > 0 ? (st.value / prev * 100) : 0;
-      var lost = 100 - conv;
-      out += '<div class="funnel-drop">' +
-        '<span class="drop-line"></span>' +
-        '<span><span class="conv">' + conv.toFixed(1).replace('.', ',') + '%</span> ' + esc(st.convLabel) + '</span>' +
-        '<span class="lost">·&nbsp;<b>' + lost.toFixed(1).replace('.', ',') + '%</b> saíram</span>' +
-        '<span class="drop-line"></span>' +
-      '</div>';
-    }
-    var share = top > 0 ? (st.value / top * 100) : 0;
-    var barW = Math.max(6, share);
-    var shareTxt = share >= 10 ? Math.round(share) + '%' : share.toFixed(1).replace('.', ',') + '%';
-    out += '<div class="funnel-stage">' +
-      '<div class="funnel-head">' +
-        '<span class="funnel-ico">' + st.emoji + '</span>' +
-        '<span class="funnel-name">' + esc(st.label) + '</span>' +
-        '<span class="funnel-count">' + fmt(st.value) + '</span>' +
-        '<span class="funnel-share" data-tip="% em relação ao topo do funil">' + shareTxt + '</span>' +
-      '</div>' +
-      '<div class="funnel-bar-track"><div class="funnel-bar" style="width:' + barW.toFixed(2) + '%"></div></div>' +
-    '</div>';
-    return out;
-  }).join('');
+  var N = stages.length, W = 1000, H = 360, colW = W / N;
+  var plotTop = 62, plotBottom = 300, yc = (plotTop + plotBottom) / 2, maxHH = (plotBottom - plotTop) / 2 - 6;
+  var headerY = 30, footerY = 340;
+  var maxV = 1;
+  stages.forEach(function (s) { if (s.value > maxV) maxV = s.value; });
+  function cx(i) { return colW * (i + 0.5); }
+  function hh(v) { return (v / maxV) * maxHH; }
+  function f(n) { return (Math.round(n * 10) / 10); }
+
+  var topPts = [[0, yc - hh(stages[0].value)]];
+  stages.forEach(function (s, i) { topPts.push([cx(i), yc - hh(s.value)]); });
+  topPts.push([W, yc - hh(stages[N - 1].value)]);
+  var botPts = [[W, yc + hh(stages[N - 1].value)]];
+  for (var i = N - 1; i >= 0; i--) botPts.push([cx(i), yc + hh(stages[i].value)]);
+  botPts.push([0, yc + hh(stages[0].value)]);
+
+  var d = smoothPath(topPts, false) +
+    ' L' + f(W) + ',' + f(yc + hh(stages[N - 1].value)) +
+    smoothPath(botPts, true) + ' Z';
+
+  var dividers = '', headers = '', pcts = '', values = '';
+  for (var k = 1; k < N; k++) {
+    var xd = colW * k;
+    dividers += '<line x1="' + xd + '" y1="46" x2="' + xd + '" y2="314" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>';
+  }
+  stages.forEach(function (s, i) {
+    var share = maxV > 0 ? (s.value / maxV * 100) : 0;
+    var shareTxt = (share >= 10 ? Math.round(share).toString() : share.toFixed(1).replace('.', ',')) + '%';
+    headers += '<text x="' + cx(i) + '" y="' + headerY + '" text-anchor="middle" font-size="15" font-weight="700" fill="#AEB4C0">' + esc(s.label) + '</text>';
+    pcts += '<text x="' + cx(i) + '" y="' + (yc + 7) + '" text-anchor="middle" font-size="22" font-weight="800" fill="#ffffff">' + shareTxt + '</text>';
+    values += '<text x="' + cx(i) + '" y="' + footerY + '" text-anchor="middle" font-size="15" font-weight="700" fill="#8A90A0">' + fmt(s.value) + '</text>';
+  });
+
+  el.innerHTML =
+    '<svg class="chart-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Funil de conversão">' +
+      '<defs><linearGradient id="fgrad-' + containerId + '" x1="0" y1="0" x2="1" y2="0">' +
+        '<stop offset="0%" stop-color="#7B5CFF"/>' +
+        '<stop offset="55%" stop-color="#B14BC6"/>' +
+        '<stop offset="100%" stop-color="#E43E7C"/>' +
+      '</linearGradient></defs>' +
+      dividers + headers +
+      '<path d="' + d + '" fill="url(#fgrad-' + containerId + ')" opacity="0.95"/>' +
+      pcts + values +
+    '</svg>';
 }
+
+/* 5 etapas no padrão Meta Ads. Cliques e Vendas Iniciadas são derivados dos dados
+   do funil (views/checkouts/vendas) com taxas médias, enquanto não há integração real. */
 function funnelStages(o, n) {
+  var pv = sumViews(o, n);
+  var ic = sumCheckouts(o, n);
+  var apr = sumSales(o, n);
+  var clicks = Math.round(pv / 0.82);                    // ~82% dos cliques viram visualização de página
+  var vendIni = Math.max(apr, Math.min(ic, Math.round(apr / 0.72))); // pedidos gerados (~72% aprovados)
   return [
-    { emoji: '📣', label: 'Visualização de anúncio', value: sumAdViews(o, n), convLabel: '' },
-    { emoji: '👀', label: 'Visualização de página', value: sumViews(o, n), convLabel: 'clicaram e abriram a página' },
-    { emoji: '🛒', label: 'Checkout iniciado', value: sumCheckouts(o, n), convLabel: 'iniciaram o checkout' },
-    { emoji: '✅', label: 'Compra', value: sumSales(o, n), convLabel: 'concluíram a compra' }
+    { label: 'Cliques', value: clicks },
+    { label: 'Vis. Página', value: pv },
+    { label: 'ICs', value: ic },
+    { label: 'Vendas Inic.', value: vendIni },
+    { label: 'Vendas Apr.', value: apr }
   ];
 }
 
