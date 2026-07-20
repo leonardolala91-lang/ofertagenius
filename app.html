@@ -796,20 +796,18 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
 .browser-viewport iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
 /* preview estilo Vercel: screenshot + metadados */
-.vpreview { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 22px; align-items: center; max-width: 900px; }
+.vpreview { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 22px; align-items: center; max-width: 860px; }
 .vpreview-thumb {
-  display: block; position: relative; height: clamp(200px, 22vw, 320px); overflow: hidden;
+  display: block; position: relative; height: 300px; max-width: 100%; overflow: hidden; contain: layout paint;
   border: 1px solid var(--border); border-radius: 12px; background: #0A0A0A;
   box-shadow: 0 12px 40px rgba(0,0,0,0.4);
 }
-.vp-shot, .vp-live { position: absolute; inset: 0; }
-.vp-shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top center; opacity: 0; transition: opacity 0.4s ease; }
-.vp-shot.loaded img { opacity: 1; }
-.vp-loading, .vp-failed { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-mute); font-size: 0.8rem; }
+.vp-shot, .vp-live { position: absolute; inset: 0; overflow: hidden; }
+.vp-loading, .vp-failed { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: #0A0A0A; color: var(--text-mute); font-size: 0.8rem; text-align: center; padding: 12px; }
+.vp-shot img { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: cover; object-position: top center; background: #0A0A0A; }
 .vp-failed { display: none; }
-.vp-shot.loaded .vp-loading { display: none; }
-.vp-shot.failed .vp-loading { display: none; }
-.vp-shot.failed .vp-failed { display: flex; }
+.vp-shot.failed .vp-failed { display: flex; z-index: 3; }
+.vp-shot.failed img, .vp-shot.failed .vp-loading { display: none; }
 .spinner-lg { width: 26px; height: 26px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; }
 .vp-live iframe { width: 100%; height: 100%; border: 0; background: #fff; }
 .vpreview-side { display: flex; flex-direction: column; gap: 9px; min-width: 0; }
@@ -2759,7 +2757,7 @@ function vercelPreviewCard(o, pv) {
     : '<div class="vp-shot" id="vpShot">' +
         '<div class="vp-loading"><span class="spinner-lg"></span><span class="vp-loading-txt">Gerando screenshot…</span></div>' +
         '<img src="' + esc(screenshotUrl(pv, 1280)) + '" alt="preview de ' + esc(dom) + '" ' +
-          'onload="this.parentNode.classList.add(\'loaded\')" onerror="this.parentNode.classList.add(\'failed\')">' +
+          'onerror="this.closest(\'.vp-shot\').classList.add(\'failed\')">' +
         '<div class="vp-failed"><span>Não foi possível gerar a imagem.</span><a class="btn btn-sm" href="' + esc(pv) + '" target="_blank" rel="noopener">Abrir página ↗</a></div>' +
       '</div>';
   return '<div class="vpreview">' +
