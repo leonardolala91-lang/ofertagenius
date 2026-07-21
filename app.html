@@ -802,9 +802,10 @@ label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-
   border: 1px solid var(--border); border-radius: 12px; background: #0A0A0A;
   box-shadow: 0 12px 40px rgba(0,0,0,0.4);
 }
-.vp-shot, .vp-live { position: absolute; inset: 0; overflow: hidden; }
-.vp-loading, .vp-failed { position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: #0A0A0A; color: var(--text-mute); font-size: 0.8rem; text-align: center; padding: 12px; }
-.vp-shot img { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; object-fit: cover; object-position: top center; background: #0A0A0A; }
+.vp-shot, .vp-live { position: absolute; inset: 0; overflow: hidden; display: grid; }
+.vp-shot > *, .vp-live > * { grid-area: 1 / 1; min-width: 0; min-height: 0; }
+.vp-loading, .vp-failed { z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: #0A0A0A; color: var(--text-mute); font-size: 0.8rem; text-align: center; padding: 12px; }
+.vp-shot img { z-index: 2; width: 100%; height: 100%; object-fit: cover; object-position: top center; background: #0A0A0A; }
 .vp-failed { display: none; }
 .vp-shot.failed .vp-failed { display: flex; z-index: 3; }
 .vp-shot.failed img, .vp-shot.failed .vp-loading { display: none; }
