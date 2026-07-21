@@ -2727,20 +2727,7 @@ function bodyAtivos(o) {
       '<div class="asset-box">' + esc(txt) + '</div>' +
       '<button class="btn btn-sm" data-copy="' + esc(txt) + '">📋 Copiar texto</button></div>';
   }
-  var pv = o.previewUrl != null ? o.previewUrl : (o.url || '');
-  var preview = '<div class="card" style="margin-bottom:14px;">' +
-    '<h3>Preview da Landing Page (funil)</h3>' +
-    '<p class="card-sub">Cole o link da página (presell, vendas, obrigado...) para gerar o preview.</p>' +
-    '<div class="preview-urlbar">' +
-      '<input type="url" id="previewUrlInput" value="' + esc(pv) + '" placeholder="https://sua-landing.com" onkeydown="if(event.key===\'Enter\'){event.preventDefault();loadPreview(\'' + o.id + '\');}">' +
-      '<button class="btn btn-sm btn-primary" onclick="loadPreview(\'' + o.id + '\')">Carregar</button>' +
-    '</div>' +
-    (pv
-      ? vercelPreviewCard(o, pv)
-      : '<div class="empty-state"><div class="big">🔗</div><b>Nenhum link ainda</b><div>Cole a URL acima e clique em Carregar.</div></div>') +
-  '</div>';
-  return preview +
-    assetCard('Post para WhatsApp', 'Pronto para colar no grupo', assetWhats(o)) +
+  return assetCard('Post para WhatsApp', 'Pronto para colar no grupo', assetWhats(o)) +
     assetCard('Story / Legenda Instagram', 'Curto e direto para stories', assetStory(o)) +
     assetCard('Post para Telegram', 'Formato de canal de cupons', assetTelegram(o));
 }
@@ -3194,13 +3181,6 @@ function renderOfertaDetail() {
   if (detailTab === 'preview') setupSecObserver();
   if (detailTab === 'funil') {
     renderFunnelChart('funnelChart', funnelStages(o, 30));
-  }
-  if (detailTab === 'ativos') {
-    // mShots costuma devolver um placeholder na 1ª chamada; recarrega uma vez se ainda não pintou
-    setTimeout(function () {
-      var box = document.getElementById('vpShot');
-      if (box && !box.classList.contains('loaded') && !box.classList.contains('failed')) refreshShot(o.id);
-    }, 5000);
   }
 }
 function setDetailTab(t) {
